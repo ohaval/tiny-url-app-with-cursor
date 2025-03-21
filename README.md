@@ -61,11 +61,14 @@ A URL shortening service built with Python and AWS CDK, focusing on clean code a
    ```
 
 ## Testing Strategy
-- Unit tests for all business logic
-- Integration tests for API endpoints
+- Component tests covering end-to-end flows:
+  - URL creation and redirection flows
+  - Real DynamoDB interactions
+  - API Gateway integration
+  - Business logic through actual usage paths
+- E2E tests in dev environment for critical paths
 - Infrastructure tests for CDK stacks
-- Mocked AWS services in tests
-- Minimum 80% code coverage
+- Focus on real user scenarios over isolated unit testing
 
 ## Initial Usage Estimates
 - Storage: ~100 bytes per URL record
