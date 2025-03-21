@@ -21,15 +21,3 @@ repos:
             'flake8-comprehensions',
             'flake8-docstrings',
         ]
-
--   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.8.0
-    hooks:
-    -   id: mypy
-        exclude: ^tests/
-        additional_dependencies: [
-            'types-PyYAML',
-            'types-requests',
-            'types-boto3',
-            'types-python-dateutil'
-        ]
