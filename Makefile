@@ -3,8 +3,8 @@
 lint:
 	pre-commit run --all-files
 
-test:
-	pytest
+local-test lt:
+	python -m pytest tests
 
 install:
 	pip install -r requirements.txt
