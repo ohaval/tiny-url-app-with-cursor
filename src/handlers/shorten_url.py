@@ -16,11 +16,8 @@ logger = Logger()
 tracer = Tracer()
 
 # Initialize DynamoDB operations outside handler for performance
-table_name = os.environ.get("URL_TABLE_NAME", "url_mappings")
-endpoint_url = os.environ.get("DYNAMODB_ENDPOINT_URL")
-dynamo_ops = DynamoDBOperations(
-    table_name=table_name, endpoint_url=endpoint_url
-)
+TABLE_NAME = "url_mappings"
+dynamo_ops = DynamoDBOperations(table_name=TABLE_NAME)
 
 MAX_RETRIES = 3
 
