@@ -1,0 +1,9 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Git Add and Commit 
+
+This rule file is relevant for most of the requests I will ask you to perform some task, like add a feature, fix tests, improve readability, etc..
+The instruction is to always `git add` the chagnes you did, and `git commit` them at the end.
