@@ -20,7 +20,8 @@ def validate_url(url: str) -> Tuple[bool, str]:
         return False, "URL cannot be empty"
 
     if len(url) > MAX_URL_LENGTH:
-        msg = f"URL length exceeds maximum of {MAX_URL_LENGTH} characters"
+        msg = (f"URL length exceeds maximum of {MAX_URL_LENGTH} "
+               f"characters")
         return False, msg
 
     if not url.startswith(("http://", "https://")):

@@ -8,9 +8,9 @@ from typing import Any, Dict
 from aws_lambda_powertools import Logger, Tracer
 from aws_lambda_powertools.utilities.typing import LambdaContext
 
-from ..utils.dynamo_ops import DynamoDBOperations
-from ..utils.short_code_generator import generate_short_code
-from ..utils.url_validator import validate_url
+from src.utils.dynamo_ops import DynamoDBOperations
+from src.utils.short_code_generator import generate_short_code
+from src.utils.url_validator import validate_url
 
 logger = Logger()
 tracer = Tracer()
