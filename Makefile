@@ -1,9 +1,9 @@
-.PHONY: lint local-test lt
+.PHONY: lint test install
 
 lint:
 	pre-commit run --all-files
 
-local-test lt:
+test:
 	pytest
 
 install:
