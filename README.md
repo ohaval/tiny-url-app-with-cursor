@@ -96,3 +96,69 @@ tiny-url/
 - Rate limiting
 - QR code generation
 - Link preview
+
+## Feature Implementation Steps
+
+### Step 1: URL Shortening Endpoint
+
+#### PRD
+- **Endpoint**: POST /shorten
+- **Input**:
+  ```json
+  {
+    "url": "https://example.com/very/long/url"
+  }
+  ```
+- **Output**:
+  ```json
+  {
+    "short_url": "https://tiny.url/abc123",
+    "expires_at": "2024-04-21T04:04:51Z"  // 30 days from creation
+  }
+  ```
+- **Requirements**:
+  - Generate 8-character unique short codes
+  - Validate input URL format
+  - 30-day expiration by default
+  - Return 400 for invalid URLs
+  - Return 409 if short code already exists (retry with new code)
+  - Maximum URL length: 2048 characters
+
+#### Technical Implementation
+- **Infrastructure**:
+  - DynamoDB table: `url_mappings`
+    - PK: short_code (String)
+    - SK: creation_date (String)
+    - Attributes:
+      - long_url (String)
+      - expires_at (Number) - TTL
+      - created_at (String)
+  - Lambda function: `shorten_url`
+  - API Gateway: REST API endpoint
+
+- **Components**:
+  1. URL Validator
+     - Check URL format
+     - Verify max length
+     - Ensure protocol (http/https)
+
+  2. Short Code Generator
+     - 8 chars [a-zA-Z0-9]
+     - Collision detection
+
+  3. DynamoDB Operations
+     - Save mapping
+     - Handle duplicates
+
+- **Error Cases**:
+  - Invalid URL format
+  - URL too long
+  - Generation retries exceeded
+  - DynamoDB failures
+
+#### Testing
+- **Component Tests**:
+  - Valid URL shortening flow
+  - Invalid URL handling
+  - Duplicate short code handling
+  - URL validation edge cases
