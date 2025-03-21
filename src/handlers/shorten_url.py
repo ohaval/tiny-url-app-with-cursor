@@ -14,9 +14,12 @@ from ..utils.url_validator import validate_url
 
 logger = Logger()
 tracer = Tracer()
+
+# Initialize DynamoDB operations outside handler for performance
+table_name = os.environ.get("URL_TABLE_NAME", "url_mappings")
+endpoint_url = os.environ.get("DYNAMODB_ENDPOINT_URL")
 dynamo_ops = DynamoDBOperations(
-    table_name=os.environ.get("URL_TABLE_NAME", "url_mappings"),
-    endpoint_url=os.environ.get("DYNAMODB_ENDPOINT_URL"),
+    table_name=table_name, endpoint_url=endpoint_url
 )
 
 MAX_RETRIES = 3

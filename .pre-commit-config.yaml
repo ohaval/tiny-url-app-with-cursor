@@ -10,18 +10,6 @@ repos:
     -   id: debug-statements
     -   id: detect-private-key
 
--   repo: https://github.com/psf/black
-    rev: 24.2.0
-    hooks:
-    -   id: black
-        args: [--line-length=70]
-
--   repo: https://github.com/pycqa/isort
-    rev: 5.13.2
-    hooks:
-    -   id: isort
-        args: ["--profile", "black", "--line-length=70"]
-
 -   repo: https://github.com/pycqa/flake8
     rev: 7.0.0
     hooks:
@@ -45,9 +33,3 @@ repos:
             'types-boto3',
             'types-python-dateutil'
         ]
-
--   repo: https://github.com/PyCQA/bandit
-    rev: 1.7.7
-    hooks:
-    -   id: bandit
-        args: ["-c", "pyproject.toml"]

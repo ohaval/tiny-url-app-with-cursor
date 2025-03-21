@@ -18,9 +18,13 @@ class DynamoDBOperations:
             table_name: Name of the DynamoDB table
             endpoint_url: Optional endpoint URL for testing
         """
-        self.dynamodb = boto3.resource(
-            "dynamodb", endpoint_url=endpoint_url
-        )
+        # For testing with moto, we should use None as endpoint_url
+        # but for localstack, we would use the actual endpoint
+        kwargs = {}
+        if endpoint_url:
+            kwargs["endpoint_url"] = endpoint_url
+
+        self.dynamodb = boto3.resource("dynamodb", **kwargs)
         self.table = self.dynamodb.Table(table_name)
 
     def save_url_mapping(
