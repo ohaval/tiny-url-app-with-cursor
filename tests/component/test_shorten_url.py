@@ -11,24 +11,13 @@ from moto import mock_aws
 
 from src.handlers.shorten_url import dynamo_ops, handler
 
-# Set environment variables for tests
-os.environ["URL_TABLE_NAME"] = "url_mappings"
 os.environ["BASE_URL"] = "https://tiny.url"
-# Set dummy AWS credentials for tests
-os.environ["AWS_ACCESS_KEY_ID"] = "testing"
-os.environ["AWS_SECRET_ACCESS_KEY"] = "testing"
-os.environ["AWS_SECURITY_TOKEN"] = "testing"
-os.environ["AWS_SESSION_TOKEN"] = "testing"
-os.environ["AWS_DEFAULT_REGION"] = "us-east-1"
 
 
 @pytest.fixture
 def dynamodb_table() -> Generator[Any, None, None]:
     """Set up DynamoDB test table."""
     with mock_aws():
-        # Reset any cached boto3 resources/clients
-        boto3.DEFAULT_SESSION = None
-
         # Create test table
         dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
         table = dynamodb.create_table(
@@ -43,7 +32,6 @@ def dynamodb_table() -> Generator[Any, None, None]:
         )
 
         # Patch the DynamoDB operations to use our mock table
-        dynamo_ops.dynamodb = dynamodb
         dynamo_ops.table = table
 
         yield table

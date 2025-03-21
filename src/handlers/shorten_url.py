@@ -8,6 +8,7 @@ from typing import Any, Dict
 from aws_lambda_powertools import Logger, Tracer
 from aws_lambda_powertools.utilities.typing import LambdaContext
 
+from src.utils.api_gateway import create_response
 from src.utils.dynamo_ops import DynamoDBOperations
 from src.utils.short_code_generator import generate_short_code
 from src.utils.url_validator import validate_url
@@ -20,17 +21,6 @@ TABLE_NAME = "url_mappings"
 dynamo_ops = DynamoDBOperations(table_name=TABLE_NAME)
 
 MAX_RETRIES = 3
-
-
-def create_response(
-    status_code: int, body: Dict[str, Any]
-) -> Dict[str, Any]:
-    """Create API Gateway response with given status code and body."""
-    return {
-        "statusCode": status_code,
-        "headers": {"Content-Type": "application/json"},
-        "body": json.dumps(body),
-    }
 
 
 @logger.inject_lambda_context
