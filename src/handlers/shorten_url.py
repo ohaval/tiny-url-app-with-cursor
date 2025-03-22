@@ -3,7 +3,7 @@
 import json
 import os
 from datetime import datetime, timedelta
-from typing import Any, Dict
+from typing import Any, Dict, Tuple, Union
 
 from aws_lambda_powertools import Logger, Tracer
 from aws_lambda_powertools.utilities.typing import LambdaContext
@@ -23,6 +23,42 @@ dynamo_ops = DynamoDBOperations(table_name=TABLE_NAME)
 MAX_RETRIES = 3
 
 
+def validate_request(event: Dict[str, Any]) -> Tuple[
+    bool, Union[str, Dict[str, Any]]
+]:
+    """Validate the incoming request.
+
+    Args:
+        event: API Gateway event
+
+    Returns:
+        Tuple containing:
+            - Boolean indicating if validation passed
+            - Either the validated URL or an error response object
+    """
+    # Parse request body
+    try:
+        body = json.loads(event.get("body", "{}"))
+    except json.JSONDecodeError:
+        return False, create_response(
+            400, {"error": "Invalid JSON in request body"}
+        )
+
+    # Check if URL is provided
+    url = body.get("url")
+    if not url:
+        return False, create_response(
+            400, {"error": "URL is empty or missing"}
+        )
+
+    # Validate URL
+    is_valid, error = validate_url(url)
+    if not is_valid:
+        return False, create_response(400, {"error": error})
+
+    return True, url
+
+
 @logger.inject_lambda_context
 @tracer.capture_lambda_handler
 def handler(
@@ -38,25 +74,12 @@ def handler(
         API Gateway response
     """
     try:
-        # Parse request body
-        try:
-            body = json.loads(event.get("body", "{}"))
-        except json.JSONDecodeError:
-            return create_response(
-                400, {"error": "Invalid JSON in request body"}
-            )
-
-        # Check if URL is provided
-        url = body.get("url")
-        if not url:
-            return create_response(
-                400, {"error": "URL is empty or missing"}
-            )
-
-        # Validate URL
-        is_valid, error = validate_url(url)
+        # Validate request
+        is_valid, result = validate_request(event)
         if not is_valid:
-            return create_response(400, {"error": error})
+            return result
+
+        url = result
 
         # Generate and save short code with retries
         for _ in range(MAX_RETRIES):
