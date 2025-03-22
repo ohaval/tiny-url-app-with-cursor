@@ -38,8 +38,20 @@ def handler(
         API Gateway response
     """
     try:
-        body = json.loads(event.get("body", "{}"))
+        # Parse request body
+        try:
+            body = json.loads(event.get("body", "{}"))
+        except json.JSONDecodeError:
+            return create_response(
+                400, {"error": "Invalid JSON in request body"}
+            )
+
+        # Check if URL is provided
         url = body.get("url")
+        if not url:
+            return create_response(
+                400, {"error": "URL is empty or missing"}
+            )
 
         # Validate URL
         is_valid, error = validate_url(url)
@@ -64,13 +76,9 @@ def handler(
                     },
                 )
 
+        # If all retries failed
         return create_response(
             409, {"error": "Failed to generate unique short code"}
-        )
-
-    except json.JSONDecodeError:
-        return create_response(
-            400, {"error": "Invalid JSON in request body"}
         )
     except Exception:
         logger.exception("Unexpected error")
