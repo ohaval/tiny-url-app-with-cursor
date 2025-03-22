@@ -57,7 +57,17 @@ A URL shortening service built with Python and AWS CDK, focusing on clean code a
 
 3. Deployment
    ```bash
-   cdk deploy
+   # Install AWS CDK CLI (if not already installed)
+   npm install -g aws-cdk
+
+   # Bootstrap CDK (first time only in each AWS account/region)
+   make cdk-bootstrap
+
+   # Deploy the stack
+   make cdk-deploy
+
+   # To destroy the deployed resources
+   make cdk-destroy
    ```
 
 ## Testing Strategy

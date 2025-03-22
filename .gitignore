@@ -39,6 +39,11 @@ coverage.xml
 .aws/
 *.pem
 
+# AWS CDK
+cdk.out/
+.cdk.staging/
+cdk.context.json
+
 # OS
 .DS_Store
 Thumbs.db

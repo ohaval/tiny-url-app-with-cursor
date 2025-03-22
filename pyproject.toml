@@ -1,3 +1,15 @@
+[build-system]
+requires = ["setuptools>=42.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tiny-url-app"
+version = "0.1.0"
+description = "URL shortening service"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "URL Shortener Team", email = "example@example.com" }]
+
 [tool.pytest.ini_options]
 minversion = "6.0"
 testpaths = ["tests"]
