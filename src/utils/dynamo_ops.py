@@ -9,22 +9,13 @@ from botocore.exceptions import ClientError
 class DynamoDBOperations:
     """Handle DynamoDB operations for URL mappings."""
 
-    def __init__(
-        self, table_name: str, endpoint_url: str | None = None
-    ) -> None:
+    def __init__(self, table_name: str) -> None:
         """Initialize DynamoDB operations.
 
         Args:
             table_name: Name of the DynamoDB table
-            endpoint_url: Optional endpoint URL for testing
         """
-        # For testing with moto, we should use None as endpoint_url
-        # but for localstack, we would use the actual endpoint
-        kwargs = {}
-        if endpoint_url:
-            kwargs["endpoint_url"] = endpoint_url
-
-        self.dynamodb = boto3.resource("dynamodb", **kwargs)
+        self.dynamodb = boto3.resource("dynamodb")
         self.table = self.dynamodb.Table(table_name)
 
     def save_url_mapping(
