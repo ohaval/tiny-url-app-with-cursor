@@ -130,10 +130,10 @@ class TinyUrlStack(Stack):
 
         # CORS parameters
         cors_header = {
-            "method.response.header.Access-Control-Allow-Origin": True,  # noqa: E501
+            "method.response.header.Access-Control-Allow-Origin": True,
         }
         cors_integration = {
-            "method.response.header.Access-Control-Allow-Origin": "'*'",  # noqa: E501
+            "method.response.header.Access-Control-Allow-Origin": "'*'",
         }
 
         # Add POST method

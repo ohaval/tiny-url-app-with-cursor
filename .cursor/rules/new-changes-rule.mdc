@@ -6,7 +6,7 @@ alwaysApply: true
 # Code formats
 
 - Always prefer to use absolute imports instead of relative ones.
-- Try to not exceed line length of 70, but in special cases if needed you can use a # noqa
+- Try to not exceed line length of 80, but in special cases if needed you can use a # noqa: E501 on the end of the line if needed.
 
 # Git Add and Commit
 
