@@ -81,7 +81,10 @@ def handler(
 
         url = result
 
-        # Generate and save short code with retries
+        # Retry logic handles potential collisions when generating
+        # short codes. If a generated code already exists in the
+        # database, we need to try creating a new one to avoid
+        # conflicts.
         for _ in range(MAX_RETRIES):
             short_code = generate_short_code()
             if dynamo_ops.save_url_mapping(short_code, url):
