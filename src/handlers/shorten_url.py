@@ -5,16 +5,12 @@ import os
 from datetime import datetime, timedelta
 from typing import Any, Dict, Tuple, Union
 
-from aws_lambda_powertools import Logger, Tracer
 from aws_lambda_powertools.utilities.typing import LambdaContext
 
 from src.utils.api_gateway import create_response
 from src.utils.dynamo_ops import DynamoDBOperations
 from src.utils.short_code_generator import generate_short_code
 from src.utils.url_validator import validate_url
-
-logger = Logger()
-tracer = Tracer()
 
 # Initialize DynamoDB operations outside handler for performance
 TABLE_NAME = "url_mappings"
@@ -59,8 +55,6 @@ def validate_request(event: Dict[str, Any]) -> Tuple[
     return True, url
 
 
-@logger.inject_lambda_context
-@tracer.capture_lambda_handler
 def handler(
     event: Dict[str, Any], context: LambdaContext
 ) -> Dict[str, Any]:
@@ -107,7 +101,6 @@ def handler(
             409, {"error": "Failed to generate unique short code"}
         )
     except Exception:
-        logger.exception("Unexpected error")
         return create_response(
             500, {"error": "Internal server error"}
         )
