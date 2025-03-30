@@ -1,18 +1,13 @@
 """Component tests for URL shortening endpoint."""
 
 import json
-import os
 from typing import Any, Generator
 
 import boto3
 import pytest
 from moto import mock_aws
 
-# Change import to avoid initializing dynamodb at import time
 from src.handlers.shorten_url import handler
-from src.utils.dynamo_ops import DynamoDBOperations
-
-os.environ["BASE_URL"] = "https://tiny.url"
 
 
 @pytest.fixture

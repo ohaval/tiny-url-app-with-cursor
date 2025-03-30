@@ -108,9 +108,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 expires_at = (
                     datetime.utcnow() + timedelta(days=30)
                 ).isoformat()
-                base_url = os.environ.get(
-                    "BASE_URL", "https://tiny.url"
-                )
+                base_url = os.environ["BASE_URL"]
                 short_url = f"{base_url}/{short_code}"
                 logger.info(
                     f"Successfully created short URL: {short_url}"
