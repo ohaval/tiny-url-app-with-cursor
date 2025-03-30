@@ -6,7 +6,6 @@ from typing import Any, Generator
 
 import boto3
 import pytest
-from aws_lambda_powertools.utilities.typing import LambdaContext
 from moto import mock_aws
 
 from src.handlers.shorten_url import dynamo_ops, handler
@@ -37,25 +36,8 @@ def dynamodb_table() -> Generator[Any, None, None]:
         yield table
 
 
-@pytest.fixture
-def mock_lambda_context() -> LambdaContext:
-    """Create a mock Lambda context for testing."""
 
-    class MockLambdaContext:
-        function_name = "test-function"
-        memory_limit_in_mb = 128
-        invoked_function_arn = "arn:aws:lambda:eu-west-1:123456789012:function:test-function"
-        aws_request_id = "test-id"
-
-        def get_remaining_time_in_millis(self) -> int:
-            return 30000
-
-    return MockLambdaContext()  # type: ignore
-
-
-def test_valid_url_shortening(
-    dynamodb_table: Any, mock_lambda_context: LambdaContext
-) -> None:
+def test_valid_url_shortening(dynamodb_table: Any) -> None:
     """Test successful URL shortening."""
     event = {
         "body": json.dumps(
@@ -63,7 +45,7 @@ def test_valid_url_shortening(
         )
     }
 
-    response = handler(event, mock_lambda_context)
+    response = handler(event, None)
 
     assert response["statusCode"] == 200
     body = json.loads(response["body"])
@@ -73,13 +55,11 @@ def test_valid_url_shortening(
     assert "expires_at" in body
 
 
-def test_invalid_url(
-    dynamodb_table: Any, mock_lambda_context: LambdaContext
-) -> None:
+def test_invalid_url(dynamodb_table: Any) -> None:
     """Test handling of invalid URL."""
     event = {"body": json.dumps({"url": "not-a-url"})}
 
-    response = handler(event, mock_lambda_context)
+    response = handler(event, None)
 
     assert response["statusCode"] == 400
     body = json.loads(response["body"])
@@ -87,13 +67,11 @@ def test_invalid_url(
     assert "URL must start with http://" in body["error"]
 
 
-def test_missing_url(
-    dynamodb_table: Any, mock_lambda_context: LambdaContext
-) -> None:
+def test_missing_url(dynamodb_table: Any) -> None:
     """Test handling of missing URL."""
     event = {"body": json.dumps({})}
 
-    response = handler(event, mock_lambda_context)
+    response = handler(event, None)
 
     assert response["statusCode"] == 400
     body = json.loads(response["body"])
@@ -101,14 +79,12 @@ def test_missing_url(
     assert "empty" in body["error"].lower()
 
 
-def test_url_too_long(
-    dynamodb_table: Any, mock_lambda_context: LambdaContext
-) -> None:
+def test_url_too_long(dynamodb_table: Any) -> None:
     """Test handling of URL that exceeds maximum length."""
     long_url = f"https://example.com/{'x' * 2048}"
     event = {"body": json.dumps({"url": long_url})}
 
-    response = handler(event, mock_lambda_context)
+    response = handler(event, None)
 
     assert response["statusCode"] == 400
     body = json.loads(response["body"])

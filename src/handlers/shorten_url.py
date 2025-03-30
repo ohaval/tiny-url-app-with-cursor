@@ -5,8 +5,6 @@ import os
 from datetime import datetime, timedelta
 from typing import Any, Dict, Tuple, Union
 
-from aws_lambda_powertools.utilities.typing import LambdaContext
-
 from src.utils.api_gateway import create_response
 from src.utils.dynamo_ops import DynamoDBOperations
 from src.utils.short_code_generator import generate_short_code
@@ -55,14 +53,12 @@ def validate_request(event: Dict[str, Any]) -> Tuple[
     return True, url
 
 
-def handler(
-    event: Dict[str, Any], context: LambdaContext
-) -> Dict[str, Any]:
+def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """Handle URL shortening requests.
 
     Args:
         event: API Gateway event
-        context: Lambda context
+        context: Any
 
     Returns:
         API Gateway response
