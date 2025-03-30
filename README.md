@@ -9,9 +9,9 @@ A URL shortening service built with Python and AWS CDK, focusing on clean code a
 - **Cloud Provider**: AWS
 - **Database**: DynamoDB
 - **API**: AWS API Gateway + Lambda
-- **Testing**: pytest, pytest-mock
+- **Testing**: pytest
 - **Type Checking**: mypy
-- **CI/CD**: GitHub Actions (TBD)
+- **CI/CD**: GitHub Actions
 
 ## Core Features
 1. URL Shortening
