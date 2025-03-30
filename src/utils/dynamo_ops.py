@@ -9,13 +9,14 @@ from botocore.exceptions import ClientError
 class DynamoDBOperations:
     """Handle DynamoDB operations for URL mappings."""
 
-    def __init__(self, table_name: str) -> None:
+    def __init__(self, table_name: str, region_name: str = "us-east-1") -> None:
         """Initialize DynamoDB operations.
 
         Args:
             table_name: Name of the DynamoDB table
+            region_name: AWS region name (default: us-east-1)
         """
-        self.dynamodb = boto3.resource("dynamodb")
+        self.dynamodb = boto3.resource("dynamodb", region_name=region_name)
         self.table = self.dynamodb.Table(table_name)
 
     def save_url_mapping(

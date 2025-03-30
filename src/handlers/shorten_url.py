@@ -24,7 +24,8 @@ logger.setLevel(logging.INFO)
 
 # Initialize DynamoDB operations outside handler for performance
 TABLE_NAME = "url_mappings"
-dynamo_ops = DynamoDBOperations(table_name=TABLE_NAME)
+REGION_NAME = os.environ.get("AWS_DEFAULT_REGION", "us-east-1")
+dynamo_ops = DynamoDBOperations(table_name=TABLE_NAME, region_name=REGION_NAME)
 
 MAX_RETRIES = 3
 

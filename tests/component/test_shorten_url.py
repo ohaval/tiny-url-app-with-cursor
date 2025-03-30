@@ -8,7 +8,9 @@ import boto3
 import pytest
 from moto import mock_aws
 
-from src.handlers.shorten_url import dynamo_ops, handler
+# Change import to avoid initializing dynamodb at import time
+from src.handlers.shorten_url import handler
+from src.utils.dynamo_ops import DynamoDBOperations
 
 os.environ["BASE_URL"] = "https://tiny.url"
 
@@ -40,11 +42,15 @@ def dynamodb_table() -> Generator[Any, None, None]:
             BillingMode="PAY_PER_REQUEST",
         )
 
-        # Patch the DynamoDB operations to use our mock table
+        # Create a new instance of DynamoDBOperations with the test table
+        dynamo_ops = DynamoDBOperations(table_name="url_mappings", region_name="us-east-1")
         dynamo_ops.table = table
 
-        yield table
+        # Monkeypatch the handler module to use our test dynamo_ops
+        import src.handlers.shorten_url
+        src.handlers.shorten_url.dynamo_ops = dynamo_ops
 
+        yield table
 
 
 def test_valid_url_shortening(dynamodb_table: Any) -> None:
