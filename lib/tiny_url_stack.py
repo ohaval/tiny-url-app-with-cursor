@@ -115,7 +115,8 @@ class TinyUrlStack(Stack):
                 # Replace with actual domain
                 "BASE_URL": "https://tiny.url",
             },
-            log_retention=logs.RetentionDays.ONE_WEEK,
+            # Use the log group explicitly created above
+            log_group=log_group,
         )
 
         # Grant Lambda permissions to access DynamoDB
