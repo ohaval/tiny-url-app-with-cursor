@@ -11,7 +11,6 @@ from aws_cdk import (
 from aws_cdk import aws_dynamodb as dynamodb
 from aws_cdk import aws_lambda as lambda_
 from aws_cdk import aws_apigateway as apigateway
-from aws_cdk import aws_logs as logs
 from constructs import Construct
 
 
@@ -82,15 +81,6 @@ class TinyUrlStack(Stack):
         Returns:
             The Lambda function
         """
-        # Create log group
-        log_group = logs.LogGroup(
-            self,
-            "ShortenUrlLogGroup",
-            log_group_name="/aws/lambda/tiny_url_shorten",
-            retention=logs.RetentionDays.ONE_WEEK,
-            removal_policy=RemovalPolicy.DESTROY,
-        )
-
         lambda_fn = lambda_.Function(
             self,
             "ShortenUrlFunction",
@@ -115,15 +105,10 @@ class TinyUrlStack(Stack):
                 # Replace with actual domain
                 "BASE_URL": "https://tiny.url",
             },
-            # Use the log group explicitly created above
-            log_group=log_group,
         )
 
         # Grant Lambda permissions to access DynamoDB
         table.grant_read_write_data(lambda_fn)
-
-        # Grant Lambda permissions to write logs
-        log_group.grant_write(lambda_fn)
 
         return lambda_fn
 
