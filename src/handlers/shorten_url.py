@@ -5,10 +5,17 @@ import os
 from datetime import datetime, timedelta
 from typing import Any, Dict, Tuple, Union
 
-from src.utils.api_gateway import create_response
-from src.utils.dynamo_ops import DynamoDBOperations
-from src.utils.short_code_generator import generate_short_code
-from src.utils.url_validator import validate_url
+# Add compatibility for both direct imports and importing through tests
+try:
+    from utils.api_gateway import create_response
+    from utils.dynamo_ops import DynamoDBOperations
+    from utils.short_code_generator import generate_short_code
+    from utils.url_validator import validate_url
+except ModuleNotFoundError:
+    from src.utils.api_gateway import create_response
+    from src.utils.dynamo_ops import DynamoDBOperations
+    from src.utils.short_code_generator import generate_short_code
+    from src.utils.url_validator import validate_url
 
 # Initialize DynamoDB operations outside handler for performance
 TABLE_NAME = "url_mappings"

@@ -96,7 +96,17 @@ class TinyUrlStack(Stack):
             "ShortenUrlFunction",
             function_name="tiny_url_shorten",
             runtime=lambda_.Runtime.PYTHON_3_11,
-            code=lambda_.Code.from_asset("src"),
+            code=lambda_.Code.from_asset(
+                ".",
+                bundling={
+                    "image": lambda_.Runtime.PYTHON_3_11.bundling_image,
+                    "command": [
+                        "bash", "-c",
+                        "pip install validators -t /asset-output && "
+                        "cp -au /asset-input/src/* /asset-output/"
+                    ]
+                }
+            ),
             handler="handlers.shorten_url.handler",
             timeout=Duration.seconds(10),
             memory_size=128,
