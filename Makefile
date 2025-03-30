@@ -18,7 +18,7 @@ cdk-bootstrap:
 	cdk bootstrap
 
 deploy:
-	cdk deploy
+	cdk deploy --require-approval never
 
 destroy:
 	cdk destroy
