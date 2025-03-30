@@ -10,6 +10,8 @@ install:
 	pip install -r requirements.txt
 
 cdk-synth:
+	# Synthesizes CloudFormation templates from your CDK code.
+	# Use to preview what will be deployed and validate infrastructure code before deployment.
 	cdk synth
 
 cdk-bootstrap:
