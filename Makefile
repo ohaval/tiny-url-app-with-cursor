@@ -1,4 +1,4 @@
-.PHONY: lint test install cdk-synth cdk-deploy cdk-bootstrap cdk-destroy
+.PHONY: lint test install cdk-synth cdk-bootstrap deploy destroy
 
 lint:
 	pre-commit run --all-files
