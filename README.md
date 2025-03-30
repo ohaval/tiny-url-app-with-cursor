@@ -44,14 +44,11 @@ A URL shortening service built with Python and AWS CDK, focusing on clean code a
 
 2. Testing
    ```bash
-   # Run unit tests
-   pytest tests/unit
+   # Run all local tests
+   make lt
 
-   # Run integration tests
-   pytest tests/integration
-
-   # Type checking
-   mypy src/
+   # Run linting
+   make lint
    ```
 
 3. Deployment
@@ -63,19 +60,18 @@ A URL shortening service built with Python and AWS CDK, focusing on clean code a
    make cdk-bootstrap
 
    # Deploy the stack
-   make cdk-deploy
+   make deploy
 
    # To destroy the deployed resources
-   make cdk-destroy
+   make destroy
    ```
 
 ## Testing Strategy
 - Component tests covering end-to-end flows:
-  - URL creation and redirection flows
-  - Real DynamoDB interactions
-  - API Gateway integration
+  - URL creation flow
+  - Real DynamoDB interactions (with moto mock)
   - Business logic through actual usage paths
-- E2E tests in dev environment for critical paths
+- Future E2E tests in dev environment for critical paths
 - Infrastructure tests for CDK stacks
 - Focus on real user scenarios over isolated unit testing
 
@@ -92,8 +88,7 @@ tiny-url/
 │   ├── handlers/         # Lambda functions
 │   └── utils/           # Shared utilities
 ├── tests/
-│   ├── unit/
-│   └── integration/
+│   └── component/       # Component tests
 ├── lib/                 # CDK infrastructure
 ├── app.py              # CDK app entry
 └── cdk.json           # CDK config

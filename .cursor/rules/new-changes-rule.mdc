@@ -21,5 +21,4 @@ The instruction is to always run `make lint` and `make lt` to make sure no linti
 - **Database**: DynamoDB
 - **API**: AWS API Gateway + Lambda
 - **Testing**: pytest
-- **Type Checking**: mypy
 - **CI/CD**: GitHub Actions
