@@ -17,8 +17,8 @@ cdk-bootstrap:
 	# Run once per AWS account/region before first deployment or after major CDK upgrades.
 	cdk bootstrap
 
-cdk-deploy:
+deploy:
 	cdk deploy
 
-cdk-destroy:
+destroy:
 	cdk destroy
