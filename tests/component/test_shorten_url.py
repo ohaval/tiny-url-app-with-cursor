@@ -15,16 +15,6 @@ from src.utils.dynamo_ops import DynamoDBOperations
 os.environ["BASE_URL"] = "https://tiny.url"
 
 
-@pytest.fixture(scope="session")
-def aws_credentials():
-    """Mocked AWS Credentials for boto3."""
-    os.environ['AWS_ACCESS_KEY_ID'] = 'testing'
-    os.environ['AWS_SECRET_ACCESS_KEY'] = 'testing'
-    os.environ['AWS_SECURITY_TOKEN'] = 'testing'
-    os.environ['AWS_SESSION_TOKEN'] = 'testing'
-    os.environ['AWS_DEFAULT_REGION'] = 'us-east-1'
-
-
 @pytest.fixture
 def dynamodb_table() -> Generator[Any, None, None]:
     """Set up DynamoDB test table."""
@@ -41,14 +31,6 @@ def dynamodb_table() -> Generator[Any, None, None]:
             ],
             BillingMode="PAY_PER_REQUEST",
         )
-
-        # Create a new instance of DynamoDBOperations with the test table
-        dynamo_ops = DynamoDBOperations(table_name="url_mappings", region_name="us-east-1")
-        dynamo_ops.table = table
-
-        # Monkeypatch the handler module to use our test dynamo_ops
-        import src.handlers.shorten_url
-        src.handlers.shorten_url.dynamo_ops = dynamo_ops
 
         yield table
 

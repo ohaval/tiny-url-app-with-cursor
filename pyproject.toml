@@ -16,6 +16,13 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 addopts = "-v --tb=short --cov=src"
 
+[tool.pytest_env]
+AWS_ACCESS_KEY_ID = "testing"
+AWS_SECRET_ACCESS_KEY = "testing"
+AWS_SECURITY_TOKEN = "testing"
+AWS_SESSION_TOKEN = "testing"
+AWS_DEFAULT_REGION = "us-east-1"
+
 [tool.flake8]
 max-line-length = 80
 extend-ignore = ["E203"]
