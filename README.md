@@ -10,7 +10,6 @@ A URL shortening service built with Python and AWS CDK, focusing on clean code a
 - **Database**: DynamoDB
 - **API**: AWS API Gateway + Lambda
 - **Testing**: pytest
-- **Type Checking**: mypy
 - **CI/CD**: GitHub Actions
 
 ## Core Features
