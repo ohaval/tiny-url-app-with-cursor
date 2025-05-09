@@ -83,3 +83,84 @@ def test_url_too_long(dynamodb_table: Any) -> None:
     body = json.loads(response["body"])
     assert "error" in body
     assert "length exceeds maximum" in body["error"]
+
+
+def test_custom_url_shortening(dynamodb_table: Any) -> None:
+    """Test successful custom URL shortening."""
+    custom_code = "my-custom-slug"
+    event = {
+        "body": json.dumps({
+            "url": "https://example.com/very/long/url",
+            "custom_code": custom_code
+        })
+    }
+
+    response = handler(event, None)
+
+    assert response["statusCode"] == 200
+    body = json.loads(response["body"])
+    assert "short_url" in body
+    assert body["short_url"].endswith(f"/{custom_code}")
+    assert "expires_at" in body
+
+
+def test_custom_url_already_taken(dynamodb_table: Any) -> None:
+    """Test handling of already taken custom URL."""
+    custom_code = "taken-slug"
+
+    # First create a URL with the custom code
+    event1 = {
+        "body": json.dumps({
+            "url": "https://example.com/first/url",
+            "custom_code": custom_code
+        })
+    }
+    handler(event1, None)
+
+    # Try to use the same custom code again
+    event2 = {
+        "body": json.dumps({
+            "url": "https://example.com/second/url",
+            "custom_code": custom_code
+        })
+    }
+    response = handler(event2, None)
+
+    assert response["statusCode"] == 409
+    body = json.loads(response["body"])
+    assert "error" in body
+    assert "already in use" in body["error"]
+
+
+def test_invalid_custom_code_format(dynamodb_table: Any) -> None:
+    """Test handling of invalid custom code format."""
+    event = {
+        "body": json.dumps({
+            "url": "https://example.com/valid/url",
+            "custom_code": "invalid/code/with/slashes"
+        })
+    }
+
+    response = handler(event, None)
+
+    assert response["statusCode"] == 400
+    body = json.loads(response["body"])
+    assert "error" in body
+    assert "must contain only" in body["error"]
+
+
+def test_too_long_custom_code(dynamodb_table: Any) -> None:
+    """Test handling of custom code that exceeds maximum length."""
+    event = {
+        "body": json.dumps({
+            "url": "https://example.com/valid/url",
+            "custom_code": "a" * 50  # Too long
+        })
+    }
+
+    response = handler(event, None)
+
+    assert response["statusCode"] == 400
+    body = json.loads(response["body"])
+    assert "error" in body
+    assert "exceeds maximum length" in body["error"]
