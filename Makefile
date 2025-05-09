@@ -12,7 +12,7 @@ local-test lt:
 e2e:
 	@if [ -z "$(API_ENDPOINT)" ]; then \
 		echo "Error: API_ENDPOINT environment variable must be set"; \
-		echo "Usage: API_ENDPOINT=https://your-api-url.execute-api.region.amazonaws.com/prod make e2e-test"; \
+		echo "Usage: API_ENDPOINT=https://your-api-url.execute-api.region.amazonaws.com/prod make e2e"; \
 		exit 1; \
 	else \
 		echo "Using API endpoint: $(API_ENDPOINT)"; \
