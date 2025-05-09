@@ -13,6 +13,10 @@ alwaysApply: true
 This rule file is relevant for most of the requests I will ask you to perform some task, like add a feature, fix tests, improve readability, etc..
 The instruction is to always run `make lint` and `make lt` to make sure no linting or test errors, and then `git add` the chagnes you did, and `git commit` them at the end.
 
+# Documentation
+
+After making some changes, always look at the docs around it and see if they need an update or not. Also very important to keep the `Makefile` file and the `README.md` always up to date, also check on them often and especially after changes.
+
 # Stack
 
 - **Backend**: Python 3.11
