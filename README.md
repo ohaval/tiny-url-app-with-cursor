@@ -15,7 +15,7 @@ A URL shortening service built with Python and AWS CDK, focusing on clean code a
 ## Core Features
 1. URL Shortening ✅
    - Generate short URLs (8 characters)
-   - Custom URL support (optional)
+   - Custom URL support ✅
    - URL expiration (TTL)
 
 2. URL Redirection (Planned)
@@ -84,6 +84,10 @@ A URL shortening service built with Python and AWS CDK, focusing on clean code a
    # You can also test manually with curl
    curl -X POST https://your-api-url.execute-api.region.amazonaws.com/prod/shorten \
      -d '{"url":"https://example.com/long/path"}'
+
+   # Or with a custom short code
+   curl -X POST https://your-api-url.execute-api.region.amazonaws.com/prod/shorten \
+     -d '{"url":"https://example.com/long/path", "custom_code":"my-link"}'
    ```
 
 ## Available Make Commands
@@ -147,7 +151,8 @@ tiny-url/
 - **Input**:
   ```json
   {
-    "url": "https://example.com/very/long/url"
+    "url": "https://example.com/very/long/url",
+    "custom_code": "my-custom-code"  // Optional
   }
   ```
 - **Output**:
@@ -159,6 +164,7 @@ tiny-url/
   ```
 - **Requirements**:
   - Generate 8-character unique short codes
+  - Support custom short codes up to 30 characters (letters, numbers, underscores, hyphens)
   - Validate input URL format
   - 30-day expiration by default
   - Return 400 for invalid URLs
