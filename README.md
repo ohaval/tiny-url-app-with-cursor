@@ -14,9 +14,9 @@ A URL shortening service built with Python and AWS CDK, focusing on clean code a
 
 ## Core Features
 1. URL Shortening ✅
-   - Generate short URLs (8 characters)
+   - Generate short URLs (8 characters) ✅
    - Custom URL support ✅
-   - URL expiration (TTL)
+   - URL expiration (TTL) ✅
 
 2. URL Redirection (Planned)
    - Fast redirect response
@@ -39,17 +39,11 @@ A URL shortening service built with Python and AWS CDK, focusing on clean code a
    ```bash
    python -m venv .venv
    source .venv/bin/activate
-   pip install -r requirements.txt
-
-   # Or use the make target
    make install
    ```
 
-2. Testing
+2. Testing & Linting
    ```bash
-   # Run component tests
-   pytest tests/component
-
    # Run all local tests
    make lt
 
@@ -57,7 +51,7 @@ A URL shortening service built with Python and AWS CDK, focusing on clean code a
    make lint
 
    # Run e2e tests against deployed API
-   API_ENDPOINT=https://your-api-url.execute-api.region.amazonaws.com/prod make e2e
+   API_ENDPOINT=https://api-id.execute-api.region.amazonaws.com/prod make e2e
    ```
 
 3. Deployment
@@ -112,7 +106,6 @@ A URL shortening service built with Python and AWS CDK, focusing on clean code a
   - Tests against the live API endpoint
   - Validates production behavior
   - Verifies all error cases
-- Infrastructure tests for CDK stacks
 - Focus on real user scenarios over isolated unit testing
 
 ## Initial Usage Estimates
