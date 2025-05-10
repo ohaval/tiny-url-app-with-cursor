@@ -207,3 +207,68 @@ tiny-url/
   - Tests against the deployed API
   - Verifies expected responses and error handling
   - Confirms behavior in production environment
+
+### Step 2: URL Redirection Endpoint
+
+#### PRD
+- **Endpoint**: GET /{short_code}
+- **Input**: Short code in URL path
+- **Output**:
+  - HTTP 302 redirect to the original URL
+  - Headers:
+    - Location: {original_long_url}
+    - Cache-Control: public, max-age=86400 (1 day)
+- **Requirements**:
+  - Fast redirection (<100ms response time)
+  - Log access for analytics (asynchronously)
+  - Return 404 for non-existent short codes
+  - Return 410 (Gone) for expired links
+  - Handle both custom and generated short codes
+  - Support HTTPS redirects
+
+#### Technical Implementation
+- **Infrastructure**:
+  - Lambda function: `redirect_url`
+  - API Gateway: REST API endpoint with path parameter
+  - CloudWatch Logs for access tracking
+  - Optional: SQS queue for analytics processing
+
+- **Components**:
+  1. URL Lookup Service
+     - Fast DynamoDB lookup by short code
+     - TTL expiration check
+     - Optimize for read performance
+
+  2. Redirect Handler
+     - Generate proper HTTP 302 response
+     - Set appropriate headers
+     - Handle edge cases
+
+  3. Analytics Logger (async)
+     - Log redirect events
+     - Capture user-agent, referrer, timestamp
+     - Designed for minimal impact on redirect latency
+
+- **Error Cases**:
+  - Short code not found
+  - Expired URL (TTL passed)
+  - DynamoDB failures
+  - Invalid short code format
+
+#### Performance Considerations
+- Use API Gateway caching for frequently accessed URLs
+- Consider DynamoDB DAX for high-volume scenarios
+- Implement proper CloudWatch alarms for latency monitoring
+
+#### Testing
+- **Component Tests**:
+  - Valid redirection flow
+  - Non-existent short code handling
+  - Expired URL handling
+  - Header verification
+
+- **E2E Tests**:
+  - Verify actual redirects with HTTP clients
+  - Measure redirect latency
+  - Test cache behavior
+  - Confirm analytics data is captured correctly
