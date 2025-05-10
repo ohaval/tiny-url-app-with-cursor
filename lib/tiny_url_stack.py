@@ -32,11 +32,12 @@ class TinyUrlStack(Stack):
         # 1. Create DynamoDB table
         url_table = self._create_dynamo_table()
 
-        # 2. Create Lambda function
+        # 2. Create Lambda functions
         shorten_lambda = self._create_shorten_lambda(url_table)
+        redirect_lambda = self._create_redirect_lambda(url_table)
 
         # 3. Create API Gateway
-        api = self._create_api_gateway(shorten_lambda)
+        api = self._create_api_gateway(shorten_lambda, redirect_lambda)
 
         # 4. Output the API Gateway URL
         CfnOutput(
@@ -112,13 +113,54 @@ class TinyUrlStack(Stack):
 
         return lambda_fn
 
+    def _create_redirect_lambda(
+        self, table: dynamodb.Table
+    ) -> lambda_.Function:
+        """Create Lambda function for URL redirection.
+
+        Args:
+            table: The DynamoDB table for URL mappings
+
+        Returns:
+            The Lambda function
+        """
+        lambda_fn = lambda_.Function(
+            self,
+            "RedirectUrlFunction",
+            function_name="tiny_url_redirect",
+            runtime=lambda_.Runtime.PYTHON_3_11,
+            code=lambda_.Code.from_asset(
+                ".",
+                bundling={
+                    "image": lambda_.Runtime.PYTHON_3_11.bundling_image,
+                    "command": [
+                        "bash", "-c",
+                        "cp -au /asset-input/src/* /asset-output/"
+                    ]
+                }
+            ),
+            handler="handlers.redirect_url.handler",
+            timeout=Duration.seconds(3),  # Shorter timeout for redirects
+            memory_size=128,
+            environment={
+                "TABLE_NAME": table.table_name,
+            },
+        )
+
+        # Grant Lambda read-only permissions to DynamoDB
+        table.grant_read_data(lambda_fn)
+
+        return lambda_fn
+
     def _create_api_gateway(
-        self, lambda_fn: lambda_.Function
+        self, shorten_lambda: lambda_.Function,
+        redirect_lambda: lambda_.Function
     ) -> apigateway.RestApi:
         """Create API Gateway for the URL shortening service.
 
         Args:
-            lambda_fn: The Lambda function to integrate with
+            shorten_lambda: The Lambda function for shortening URLs
+            redirect_lambda: The Lambda function for redirecting URLs
 
         Returns:
             The REST API
@@ -146,11 +188,11 @@ class TinyUrlStack(Stack):
             "method.response.header.Access-Control-Allow-Origin": "'*'",
         }
 
-        # Add POST method
+        # Add POST method for shortening
         shorten.add_method(
             "POST",
             apigateway.LambdaIntegration(
-                lambda_fn,
+                shorten_lambda,
                 proxy=True,
                 integration_responses=[
                     apigateway.IntegrationResponse(
@@ -164,6 +206,39 @@ class TinyUrlStack(Stack):
                     status_code="200",
                     response_parameters=cors_header,
                 )
+            ],
+        )
+
+        # Add /{shortCode} endpoint for redirects
+        short_code = api.root.add_resource("{shortCode}")
+
+        # Add GET method for redirection
+        # Include additional headers for redirects
+        redirect_cors_header = {
+            "method.response.header.Access-Control-Allow-Origin": True,
+            "method.response.header.Location": True,
+            "method.response.header.Cache-Control": True,
+        }
+
+        short_code.add_method(
+            "GET",
+            apigateway.LambdaIntegration(
+                redirect_lambda,
+                proxy=True,
+            ),
+            method_responses=[
+                apigateway.MethodResponse(
+                    status_code="302",
+                    response_parameters=redirect_cors_header,
+                ),
+                apigateway.MethodResponse(
+                    status_code="404",
+                    response_parameters=cors_header,
+                ),
+                apigateway.MethodResponse(
+                    status_code="410",
+                    response_parameters=cors_header,
+                ),
             ],
         )
 

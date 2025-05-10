@@ -1,33 +1,11 @@
 """Component tests for URL shortening endpoint."""
 
 import json
-from typing import Any, Generator
+from typing import Any
 
-import boto3
 import pytest
-from moto import mock_aws
 
 from src.handlers.shorten_url import handler
-
-
-@pytest.fixture
-def dynamodb_table() -> Generator[Any, None, None]:
-    """Set up DynamoDB test table."""
-    with mock_aws():
-        # Create test table
-        dynamodb = boto3.resource("dynamodb", region_name="us-east-1")
-        table = dynamodb.create_table(
-            TableName="url_mappings",
-            KeySchema=[
-                {"AttributeName": "short_code", "KeyType": "HASH"}
-            ],
-            AttributeDefinitions=[
-                {"AttributeName": "short_code", "AttributeType": "S"}
-            ],
-            BillingMode="PAY_PER_REQUEST",
-        )
-
-        yield table
 
 
 def test_valid_url_shortening(dynamodb_table: Any) -> None:
@@ -115,7 +93,8 @@ def test_custom_url_already_taken(dynamodb_table: Any) -> None:
             "custom_code": custom_code
         })
     }
-    handler(event1, None)
+    response1 = handler(event1, None)
+    assert response1["statusCode"] == 200
 
     # Try to use the same custom code again
     event2 = {

@@ -21,3 +21,25 @@ def create_response(
         "headers": {"Content-Type": "application/json"},
         "body": json.dumps(body),
     }
+
+
+def create_redirect_response(
+    location: str, cache_ttl: int = 86400
+) -> Dict[str, Any]:
+    """Create API Gateway redirect response.
+
+    Args:
+        location: URL to redirect to
+        cache_ttl: Cache TTL in seconds (default: 86400 - 1 day)
+
+    Returns:
+        Formatted API Gateway response dictionary for redirection
+    """
+    return {
+        "statusCode": 302,
+        "headers": {
+            "Location": location,
+            "Cache-Control": f"public, max-age={cache_ttl}"
+        },
+        "body": ""
+    }

@@ -1,11 +1,11 @@
-"""End-to-end tests for the deployed URL shortening API.
+"""End-to-end tests for the deployed URL API.
 
 These tests run against the actual deployed API endpoint in AWS.
 The API endpoint URL should be provided via the API_ENDPOINT environment variable.
 
 Example:
     API_ENDPOINT=https://0fllpafnie.execute-api.us-east-1.amazonaws.com/prod \
-    python -m pytest tests/e2e/test_shorten_url.py -v
+    python -m pytest tests/e2e/test_e2e.py -v
 """
 
 import os
@@ -27,6 +27,8 @@ SHORTEN_ENDPOINT = (
     else API_ENDPOINT
 )
 
+
+# URL Shortening Tests
 
 def test_valid_url_shortening() -> None:
     """Test that a valid URL can be shortened and returns expected format."""
@@ -112,3 +114,37 @@ def test_url_too_long() -> None:
     assert response.status_code == 400
     assert "error" in response_data
     assert "length exceeds maximum" in response_data["error"]
+
+
+# URL Redirection Tests
+
+def test_url_redirection() -> None:
+    """Test redirection for a valid short code."""
+    # First create a shortened URL
+    payload = {"url": "https://example.com/test-redirection"}
+    response = requests.post(SHORTEN_ENDPOINT, json=payload)
+    assert response.status_code == 200
+
+    short_url = response.json()["short_url"]
+    short_code = short_url.split("/")[-1]
+
+    # Now test redirection
+    redirect_url = f"{API_ENDPOINT}/{short_code}"
+    redirect_response = requests.get(redirect_url, allow_redirects=False)
+
+    # Check for 302 redirect status and proper headers
+    assert redirect_response.status_code == 302
+    assert redirect_response.headers.get("Location") == "https://example.com/test-redirection"
+    assert "Cache-Control" in redirect_response.headers
+
+
+def test_nonexistent_short_code() -> None:
+    """Test behavior for a non-existent short code."""
+    # Use a random short code that shouldn't exist
+    redirect_url = f"{API_ENDPOINT}/nonexistent12345"
+    response = requests.get(redirect_url)
+
+    # Should return 404 for non-existent codes
+    assert response.status_code == 404
+    assert "error" in response.json()
+    assert "not found" in response.json()["error"].lower()

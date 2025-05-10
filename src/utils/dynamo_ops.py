@@ -1,6 +1,7 @@
 """DynamoDB operations for URL shortening service."""
 
 from datetime import datetime, timedelta
+from typing import Dict, Any, Optional, Tuple
 
 import boto3
 from botocore.exceptions import ClientError
@@ -26,23 +27,57 @@ class DynamoDBOperations:
         now = datetime.utcnow()
         expires_at = int((now + timedelta(days=30)).timestamp())
 
+        # First check if the short_code already exists
         try:
+            response = self.table.query(
+                KeyConditionExpression="short_code = :code",
+                ExpressionAttributeValues={":code": short_code},
+                Limit=1
+            )
+
+            if response.get("Items"):
+                # Short code already exists
+                return False
+
+            # Short code doesn't exist, save it
             self.table.put_item(
                 Item={
                     "short_code": short_code,
                     "creation_date": now.isoformat(),
                     "long_url": long_url,
                     "expires_at": expires_at,
-                },
-                ConditionExpression=(
-                    "attribute_not_exists(short_code)"
-                ),
+                }
             )
             return True
-        except ClientError as e:
-            if (
-                e.response["Error"]["Code"]
-                == "ConditionalCheckFailedException"
-            ):
-                return False
+        except ClientError:
+            # Handle unexpected errors
             raise
+
+    def get_url_mapping(
+        self, short_code: str
+    ) -> Tuple[bool, Optional[Dict[str, Any]]]:
+        """Get URL mapping from DynamoDB.
+
+        Args:
+            short_code: The short code to look up
+
+        Returns:
+            Tuple containing:
+                - Boolean indicating if mapping was found
+                - Dictionary with URL data if found, None otherwise
+        """
+        try:
+            response = self.table.query(
+                KeyConditionExpression="short_code = :code",
+                ExpressionAttributeValues={":code": short_code},
+                Limit=1,
+                ScanIndexForward=False  # Get the most recent entry first
+            )
+
+            items = response.get("Items", [])
+            if not items:
+                return False, None
+
+            return True, items[0]
+        except ClientError:
+            return False, None

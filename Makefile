@@ -7,7 +7,7 @@ install:
 	pip install -r requirements.txt
 
 local-test lt:
-	python -m pytest tests
+	python -m pytest tests/component
 
 e2e:
 	@if [ -z "$(API_ENDPOINT)" ]; then \
@@ -17,7 +17,7 @@ e2e:
 	else \
 		echo "Using API endpoint: $(API_ENDPOINT)"; \
 	fi; \
-	API_ENDPOINT=$(API_ENDPOINT) python -m pytest tests/e2e/test_shorten_url.py -v
+	API_ENDPOINT=$(API_ENDPOINT) python -m pytest tests/e2e/test_e2e.py -v
 
 cdk-synth:
 	# Synthesizes CloudFormation templates from your CDK code.
