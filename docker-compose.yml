@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # URL Shortening Service
+  shorten:
+    build:
+      context: .
+      dockerfile: docker/shorten/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - AWS_DEFAULT_REGION=us-east-1
+      - BASE_URL=http://localhost:8001  # Point to redirect service
+      - PORT=8000
+      - DYNAMODB_ENDPOINT_URL=http://dynamodb-local:8000
+    networks:
+      - tiny-url-network
+    depends_on:
+      - dynamodb-local
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # URL Redirection Service
+  redirect:
+    build:
+      context: .
+      dockerfile: docker/redirect/Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - AWS_DEFAULT_REGION=us-east-1
+      - PORT=8001
+      - DYNAMODB_ENDPOINT_URL=http://dynamodb-local:8000
+    networks:
+      - tiny-url-network
+    depends_on:
+      - dynamodb-local
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # DynamoDB Local for development (optional)
+  dynamodb-local:
+    image: amazon/dynamodb-local:latest
+    ports:
+      - "8002:8000"
+    command: ["-jar", "DynamoDBLocal.jar", "-sharedDb", "-inMemory"]
+    networks:
+      - tiny-url-network
+
+networks:
+  tiny-url-network:
+    driver: bridge

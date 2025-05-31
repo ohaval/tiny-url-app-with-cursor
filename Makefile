@@ -1,4 +1,4 @@
-.PHONY: lint lt e2e install cdk-synth cdk-bootstrap deploy destroy e2e-test
+.PHONY: lint lt e2e install cdk-synth cdk-bootstrap deploy destroy e2e-test docker-build docker-up docker-down docker-test docker-setup docker-logs docker-clean
 
 lint:
 	pre-commit run --all-files
@@ -34,3 +34,33 @@ deploy:
 
 destroy:
 	cdk destroy
+
+# Docker commands for containerized development
+docker-build:
+	# Build Docker images for both microservices
+	docker-compose build
+
+docker-up:
+	# Start all containerized services in detached mode
+	docker-compose up -d
+
+docker-down:
+	# Stop and remove all containerized services
+	docker-compose down
+
+docker-setup:
+	# Complete setup of local containerized development environment
+	./scripts/setup-local-dev.sh
+
+docker-test:
+	# Run comprehensive tests against containerized services
+	./scripts/test-services.sh
+
+docker-logs:
+	# View logs from all services
+	docker-compose logs -f
+
+docker-clean:
+	# Clean up Docker resources (images, containers, volumes)
+	docker-compose down -v
+	docker system prune -f

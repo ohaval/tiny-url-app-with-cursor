@@ -1,5 +1,6 @@
 """DynamoDB operations for URL shortening service."""
 
+import os
 from datetime import datetime, timedelta
 from typing import Dict, Any, Optional, Tuple
 
@@ -17,7 +18,22 @@ class DynamoDBOperations:
             table_name: Name of the DynamoDB table
             region_name: AWS region name (default: us-east-1)
         """
-        self.dynamodb = boto3.resource("dynamodb", region_name=region_name)
+        # Check if we're running in local development mode
+        endpoint_url = os.environ.get("DYNAMODB_ENDPOINT_URL")
+
+        if endpoint_url:
+            # Local development mode - use local DynamoDB
+            self.dynamodb = boto3.resource(
+                "dynamodb",
+                region_name=region_name,
+                endpoint_url=endpoint_url,
+                aws_access_key_id="dummy",
+                aws_secret_access_key="dummy"
+            )
+        else:
+            # Production mode - use AWS DynamoDB
+            self.dynamodb = boto3.resource("dynamodb", region_name=region_name)
+
         self.table = self.dynamodb.Table(table_name)
 
     def save_url_mapping(

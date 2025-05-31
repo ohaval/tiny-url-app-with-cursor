@@ -19,35 +19,38 @@ This document outlines a structured approach to learning Kubernetes and Amazon E
 - **Infrastructure**: AWS CDK
 
 ### Target Architecture (Kubernetes)
-- **Shorten Service**: Containerized microservice
-- **Redirect Service**: Containerized microservice
+- **Shorten Service**: Containerized microservice ✅
+- **Redirect Service**: Containerized microservice ✅
 - **Database**: DynamoDB (initially) → PostgreSQL on K8s (later)
 - **Infrastructure**: EKS cluster with CDK
 
 ## Learning Phases
 
-### Phase 1: Containerization (Week 1)
+### Phase 1: Containerization (Week 1) ✅
 **Goal**: Transform Lambda functions into containerized microservices
 
 #### Tasks
-- [ ] Create Dockerfile for shorten service
-- [ ] Create Dockerfile for redirect service
-- [ ] Set up docker-compose for local development
-- [ ] Test services locally with Docker
-- [ ] Learn Docker networking between services
+- [x] Create Dockerfile for shorten service
+- [x] Create Dockerfile for redirect service
+- [x] Set up docker-compose for local development
+- [x] Test services locally with Docker
+- [x] Learn Docker networking between services
 
 #### Key Concepts to Learn
-- Docker fundamentals (images, containers, layers)
-- Multi-stage builds for Python applications
-- Container networking
-- Environment variable management
-- Health checks
+- Docker fundamentals (images, containers, layers) ✅
+- Multi-stage builds for Python applications ✅
+- Container networking ✅
+- Environment variable management ✅
+- Health checks ✅
 
 #### Deliverables
-- `docker/shorten/Dockerfile`
-- `docker/redirect/Dockerfile`
-- `docker-compose.yml`
-- Updated README with Docker instructions
+- `docker/shorten/Dockerfile` ✅
+- `docker/redirect/Dockerfile` ✅
+- `docker-compose.yml` ✅
+- Updated README with Docker instructions ✅
+- `scripts/setup-local-dev.sh` - Automated setup script ✅
+- `scripts/test-services.sh` - Comprehensive testing script ✅
+- Updated Makefile with Docker commands ✅
 
 ### Phase 2: Local Kubernetes (Week 2)
 **Goal**: Deploy application to local Kubernetes cluster
@@ -164,11 +167,11 @@ kubectl port-forward service/<service-name> 8080:80
 
 ## Progress Tracking
 
-### Phase 1: Containerization
-- [ ] Docker fundamentals understood
-- [ ] Services containerized
-- [ ] Local testing successful
-- [ ] Documentation updated
+### Phase 1: Containerization ✅
+- [x] Docker fundamentals understood
+- [x] Services containerized
+- [x] Local testing successful
+- [x] Documentation updated
 
 ### Phase 2: Local Kubernetes
 - [ ] Local cluster running
@@ -207,8 +210,35 @@ kubectl port-forward service/<service-name> 8080:80
 - [CNCF Landscape](https://landscape.cncf.io/)
 
 ## Notes and Learnings
-*Use this section to document insights, gotchas, and lessons learned during the journey*
+
+### Phase 1 Learnings ✅
+**Docker Concepts Mastered:**
+- **Multi-stage builds**: Used builder stage for dependencies, runtime stage for minimal final image
+- **Layer caching**: Copied requirements first for better build performance
+- **Security**: Created non-root user, minimal base images
+- **Health checks**: Implemented proper health endpoints for container orchestration
+- **Networking**: Services communicate via Docker network with service names
+- **Environment variables**: Used for configuration (DynamoDB endpoint, ports, etc.)
+
+**Key Insights:**
+- Lambda functions can be easily wrapped in Flask for containerization
+- Local DynamoDB requires dummy AWS credentials and endpoint configuration
+- Docker Compose simplifies multi-service development
+- Automated scripts are essential for reproducible development environments
+- Comprehensive testing validates the entire containerized stack
+
+**Files Created:**
+- `docker/shorten/Dockerfile` - Multi-stage build for shorten service
+- `docker/redirect/Dockerfile` - Multi-stage build for redirect service
+- `docker/shorten/app.py` - Flask wrapper for Lambda handler
+- `docker/redirect/app.py` - Flask wrapper for Lambda handler
+- `docker/requirements-container.txt` - Container-specific dependencies
+- `docker-compose.yml` - Multi-service orchestration
+- `scripts/setup-local-dev.sh` - Automated environment setup
+- `scripts/test-services.sh` - Comprehensive testing suite
+- Updated `Makefile` with Docker commands
+- Updated `src/utils/dynamo_ops.py` for local development support
 
 ---
 
-**Next Step**: Begin Phase 1 by containerizing the Lambda functions into microservices.
+**Next Step**: Begin Phase 2 by setting up local Kubernetes cluster and creating K8s manifests.

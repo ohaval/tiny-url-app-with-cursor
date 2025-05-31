@@ -1,0 +1,12 @@
+# Container-specific requirements
+# Include base requirements plus web service dependencies
+-r requirements.txt
+
+# Web framework
+flask==3.0.0
+
+# Production WSGI server (for future use)
+gunicorn==21.2.0
+
+# HTTP client for health checks
+requests==2.31.0
