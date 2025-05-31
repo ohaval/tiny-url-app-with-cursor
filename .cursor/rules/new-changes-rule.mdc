@@ -17,6 +17,10 @@ The instruction is to always run `make lint` and `make lt` to make sure no linti
 
 After making some changes, always look at the docs around it and see if they need an update or not. Also very important to keep the `Makefile` file and the `README.md` always up to date, also check on them often and especially after changes.
 
+## Feature And Steps Tracking
+
+In features documentation files, or learning-steps always track what we have done and what's not. Using the ✅ emoji is a great way to sign on specific items that were done.
+
 # Stack
 
 - **Backend**: Python 3.11
