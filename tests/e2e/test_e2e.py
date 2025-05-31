@@ -2,9 +2,15 @@
 
 These tests run against the actual deployed API endpoint in AWS.
 The API endpoint URL should be provided via the API_ENDPOINT environment variable.
+You can provide either the base API URL or the /shorten endpoint URL - the tests
+will automatically extract the base URL and construct the correct endpoints.
 
 Example:
     API_ENDPOINT=https://0fllpafnie.execute-api.us-east-1.amazonaws.com/prod \
+    python -m pytest tests/e2e/test_e2e.py -v
+
+    # Or with the /shorten endpoint URL:
+    API_ENDPOINT=https://0fllpafnie.execute-api.us-east-1.amazonaws.com/prod/shorten \
     python -m pytest tests/e2e/test_e2e.py -v
 """
 
@@ -20,12 +26,11 @@ if not API_ENDPOINT:
         "API_ENDPOINT environment variable must be set to run E2E tests."
     )
 
-# Ensure the endpoint has the correct format with trailing slash if needed
-SHORTEN_ENDPOINT = (
-    f"{API_ENDPOINT}/shorten"
-    if not API_ENDPOINT.endswith("/shorten")
-    else API_ENDPOINT
-)
+# Extract base API URL (remove /shorten if present)
+BASE_API_URL = API_ENDPOINT.rstrip("/shorten").rstrip("/")
+
+# Construct endpoints
+SHORTEN_ENDPOINT = f"{BASE_API_URL}/shorten"
 
 
 # URL Shortening Tests
@@ -129,7 +134,7 @@ def test_url_redirection() -> None:
     short_code = short_url.split("/")[-1]
 
     # Now test redirection
-    redirect_url = f"{API_ENDPOINT}/{short_code}"
+    redirect_url = f"{BASE_API_URL}/{short_code}"
     redirect_response = requests.get(redirect_url, allow_redirects=False)
 
     # Check for 302 redirect status and proper headers
@@ -141,7 +146,7 @@ def test_url_redirection() -> None:
 def test_nonexistent_short_code() -> None:
     """Test behavior for a non-existent short code."""
     # Use a random short code that shouldn't exist
-    redirect_url = f"{API_ENDPOINT}/nonexistent12345"
+    redirect_url = f"{BASE_API_URL}/nonexistent12345"
     response = requests.get(redirect_url)
 
     # Should return 404 for non-existent codes

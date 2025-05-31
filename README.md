@@ -72,7 +72,8 @@ A URL shortening service built with Python and AWS CDK, focusing on clean code a
 4. Post-Deployment Validation
    ```bash
    # After deployment, the API URL will be displayed in the output
-   # Use this URL to run e2e tests against the deployed API
+   # Use the base API URL (without /shorten) to run e2e tests against the deployed API
+   # The tests will automatically construct the correct endpoints
    API_ENDPOINT=https://your-api-url.execute-api.region.amazonaws.com/prod make e2e
 
    # You can also test manually with curl
