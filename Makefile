@@ -1,4 +1,4 @@
-.PHONY: lint lt e2e install cdk-synth cdk-bootstrap deploy destroy e2e-test docker-build docker-up docker-down docker-test docker-setup docker-logs docker-clean
+.PHONY: lint lt e2e e2e-aws install cdk-synth cdk-bootstrap deploy destroy docker-build docker-up docker-down docker-test docker-setup docker-logs docker-clean
 
 lint:
 	pre-commit run --all-files
@@ -9,15 +9,41 @@ install:
 local-test lt:
 	python -m pytest tests/component
 
+# End-to-end tests work with both local containerized and deployed AWS services
+# Local: python -m pytest tests/e2e/test_e2e.py -v
+# AWS: API_ENDPOINT=https://api-url.execute-api.region.amazonaws.com/prod python -m pytest tests/e2e/test_e2e.py -v
 e2e:
-	@if [ -z "$(API_ENDPOINT)" ]; then \
-		echo "Error: API_ENDPOINT environment variable must be set"; \
-		echo "Usage: API_ENDPOINT=https://your-api-url.execute-api.region.amazonaws.com/prod make e2e"; \
+	python -m pytest tests/e2e/test_e2e.py -v --log-cli-level=INFO
+
+# Run e2e tests against deployed AWS version (auto-detects API endpoint)
+e2e-aws:
+	@echo "🔍 Checking for deployed AWS stack..."
+	@if ! command -v cdk &> /dev/null; then \
+		echo "❌ AWS CDK CLI not found. Please install it with: npm install -g aws-cdk"; \
 		exit 1; \
-	else \
-		echo "Using API endpoint: $(API_ENDPOINT)"; \
 	fi; \
-	API_ENDPOINT=$(API_ENDPOINT) python -m pytest tests/e2e/test_e2e.py -v
+	if ! command -v aws &> /dev/null; then \
+		echo "❌ AWS CLI not found. Please install it first."; \
+		exit 1; \
+	fi; \
+	DEPLOYED_STACKS=$$(cdk list --deployed 2>/dev/null || echo ""); \
+	if [ -z "$$DEPLOYED_STACKS" ]; then \
+		echo "❌ No deployed AWS stacks found."; \
+		echo "   Deploy the app first with: make deploy"; \
+		exit 1; \
+	fi; \
+	echo "✅ Found deployed stack(s): $$DEPLOYED_STACKS"; \
+	echo "🔍 Extracting API endpoint..."; \
+	STACK_NAME=$$(echo "$$DEPLOYED_STACKS" | head -1); \
+	API_URL=$$(aws cloudformation describe-stacks --stack-name "$$STACK_NAME" --query 'Stacks[0].Outputs[?contains(OutputValue, `execute-api`)].OutputValue' --output text 2>/dev/null | awk '{print $$1}' || echo ""); \
+	if [ -z "$$API_URL" ]; then \
+		echo "❌ Could not extract API endpoint from deployed stack."; \
+		echo "   Make sure the stack has an API Gateway output."; \
+		exit 1; \
+	fi; \
+	echo "✅ Found API endpoint: $$API_URL"; \
+	echo "🧪 Running e2e tests against deployed AWS services..."; \
+	API_ENDPOINT=$$API_URL python -m pytest tests/e2e/test_e2e.py -v --log-cli-level=INFO
 
 cdk-synth:
 	# Synthesizes CloudFormation templates from your CDK code.

@@ -9,3 +9,4 @@ validators==0.22.0  # for URL validation
 aws-cdk-lib==2.118.0  # for AWS CDK infrastructure
 constructs==10.3.0  # for AWS CDK constructs
 pre-commit==4.2.0
+requests==2.31.0  # for API client HTTP requests

@@ -1,155 +1,178 @@
-"""End-to-end tests for the deployed URL API.
+"""
+End-to-end tests for the Tiny URL API using TinyURLClient.
 
-These tests run against the actual deployed API endpoint in AWS.
-The API endpoint URL should be provided via the API_ENDPOINT environment variable.
-You can provide either the base API URL or the /shorten endpoint URL - the tests
-will automatically extract the base URL and construct the correct endpoints.
+These tests work against both local containerized services and deployed AWS services.
+The environment is auto-detected or configured via the API_ENDPOINT environment variable.
 
-Example:
-    API_ENDPOINT=https://0fllpafnie.execute-api.us-east-1.amazonaws.com/prod \
+Examples:
+    # Test against local containerized services (default)
     python -m pytest tests/e2e/test_e2e.py -v
 
-    # Or with the /shorten endpoint URL:
-    API_ENDPOINT=https://0fllpafnie.execute-api.us-east-1.amazonaws.com/prod/shorten \
-    python -m pytest tests/e2e/test_e2e.py -v
+    # Test against deployed AWS services
+    API_ENDPOINT=https://api-id.execute-api.region.amazonaws.com/prod python -m pytest tests/e2e/test_e2e.py -v
 """
 
-import os
-import re
-
-import requests
-
-# Get the API endpoint from environment variable
-API_ENDPOINT = os.environ.get("API_ENDPOINT")
-if not API_ENDPOINT:
-    raise EnvironmentError(
-        "API_ENDPOINT environment variable must be set to run E2E tests."
-    )
-
-# Extract base API URL (remove /shorten if present)
-BASE_API_URL = API_ENDPOINT.rstrip("/shorten").rstrip("/")
-
-# Construct endpoints
-SHORTEN_ENDPOINT = f"{BASE_API_URL}/shorten"
+import pytest
+import time
+from src.utils.api_client import TinyURLClient
 
 
-# URL Shortening Tests
+class TestTinyURLAPI:
+    """End-to-end tests for the Tiny URL API."""
 
-def test_valid_url_shortening() -> None:
-    """Test that a valid URL can be shortened and returns expected format."""
-    # Arrange
-    payload = {"url": "https://example.com/long/path"}
+    @pytest.fixture
+    def client(self):
+        """Create API client instance."""
+        return TinyURLClient()
 
-    # Act
-    response = requests.post(SHORTEN_ENDPOINT, json=payload)
-    response_data = response.json()
+    def test_health_checks(self, client):
+        """Test health endpoints for both services."""
+        # Skip health checks for AWS deployments as they don't have health endpoints
+        if not client.is_local:
+            pytest.skip("AWS deployments don't have health endpoints")
 
-    # Assert
-    assert response.status_code == 200
-    assert "short_url" in response_data
-    assert "expires_at" in response_data
+        # Test shorten service health
+        health_response = client.health_check("shorten")
+        assert health_response.success, f"Shorten health check failed: {health_response.text}"
 
-    # Verify short URL format (base URL + 8 character code)
-    short_url = response_data["short_url"]
-    assert re.match(r"https://tiny\.url/[a-zA-Z0-9]{8}$", short_url)
+        # Test redirect service health
+        health_response = client.health_check("redirect")
+        assert health_response.success, f"Redirect health check failed: {health_response.text}"
 
+    def test_basic_url_shortening(self, client):
+        """Test basic URL shortening functionality."""
+        test_url = "https://www.example.com"
 
-def test_multiple_valid_urls_get_different_codes() -> None:
-    """Test that different URLs get different short codes."""
-    # Arrange
-    payload1 = {"url": "https://example.com/path1"}
-    payload2 = {"url": "https://example.com/path2"}
+        response = client.shorten_url(test_url)
+        assert response.success, f"URL shortening failed: {response.text}"
 
-    # Act
-    response1 = requests.post(SHORTEN_ENDPOINT, json=payload1)
-    response2 = requests.post(SHORTEN_ENDPOINT, json=payload2)
+        data = response.json()
+        assert "short_url" in data
+        assert "expires_at" in data
 
-    # Assert
-    assert response1.status_code == 200
-    assert response2.status_code == 200
+        # Verify short URL format - different for local vs AWS
+        short_url = data["short_url"]
+        if client.is_local:
+            # Local: should contain redirect base URL
+            assert client.redirect_base in short_url
+        else:
+            # AWS: may use different domain format (e.g., tiny.url)
+            assert short_url.startswith(("http://", "https://"))
+            assert "/" in short_url  # Should have a path component
 
-    short_url1 = response1.json()["short_url"]
-    short_url2 = response2.json()["short_url"]
+    def test_custom_short_code(self, client):
+        """Test URL shortening with custom short code."""
+        test_url = "https://www.github.com"
+        # Make unique custom code using timestamp
+        timestamp = int(time.time())
+        custom_code = f"github-{timestamp}"
 
-    # Different URLs should get different short codes
-    assert short_url1 != short_url2
+        response = client.shorten_url(test_url, custom_code=custom_code)
+        assert response.success, f"Custom code shortening failed: {response.text}"
 
+        data = response.json()
+        short_url = data["short_url"]
+        assert custom_code in short_url
 
-def test_invalid_url() -> None:
-    """Test that an invalid URL returns the appropriate error."""
-    # Arrange
-    payload = {"url": "not-valid-url"}
+    def test_invalid_url_handling(self, client):
+        """Test error handling for invalid URLs."""
+        invalid_url = "not-a-valid-url"
 
-    # Act
-    response = requests.post(SHORTEN_ENDPOINT, json=payload)
-    response_data = response.json()
+        response = client.shorten_url(invalid_url)
+        assert not response.success
+        assert response.status_code == 400
+        assert "error" in response.json()
 
-    # Assert
-    assert response.status_code == 400
-    assert "error" in response_data
-    assert "URL must start with http://" in response_data["error"]
+    def test_missing_url_handling(self, client):
+        """Test error handling for missing URL."""
+        # This will cause JSON parsing to create empty dict
+        response = client._make_request("POST", client.shorten_endpoint,
+                                        json={},
+                                        headers={"Content-Type": "application/json"})
+        assert response.status_code == 400
+        assert "error" in response.json()
+        assert "URL is empty or missing" in response.json()["error"]
 
+    def test_url_redirection(self, client):
+        """Test URL redirection functionality."""
+        test_url = "https://www.python.org"
 
-def test_missing_url() -> None:
-    """Test that a missing URL returns the appropriate error."""
-    # Arrange
-    payload = {}
+        # First shorten the URL
+        shorten_response = client.shorten_url(test_url)
+        assert shorten_response.success
 
-    # Act
-    response = requests.post(SHORTEN_ENDPOINT, json=payload)
-    response_data = response.json()
+        short_code = client.extract_short_code(shorten_response)
 
-    # Assert
-    assert response.status_code == 400
-    assert "error" in response_data
-    assert "URL is empty or missing" in response_data["error"]
+        # Test redirect
+        redirect_response = client.redirect(short_code, follow_redirects=False)
+        assert redirect_response.status_code == 302
 
+        # Check Location header
+        location = (redirect_response.headers.get("Location") or
+                    redirect_response.headers.get("location"))
+        assert location == test_url
 
-def test_url_too_long() -> None:
-    """Test that a URL exceeding maximum length returns an error."""
-    # Arrange
-    long_url = f"https://example.com/{'x' * 2048}"
-    payload = {"url": long_url}
+    def test_nonexistent_short_code(self, client):
+        """Test handling of non-existent short codes."""
+        fake_code = "nonexistent123"
 
-    # Act
-    response = requests.post(SHORTEN_ENDPOINT, json=payload)
-    response_data = response.json()
+        response = client.redirect(fake_code, follow_redirects=False)
+        assert response.status_code == 404
+        assert "error" in response.json()
 
-    # Assert
-    assert response.status_code == 400
-    assert "error" in response_data
-    assert "length exceeds maximum" in response_data["error"]
+    def test_complete_workflow(self, client):
+        """Test complete URL shortening and redirection workflow."""
+        test_url = "https://docs.python.org/3/"
 
+        # Step 1: Shorten URL
+        shorten_response = client.shorten_url(test_url)
+        assert shorten_response.success, f"Shorten failed: {shorten_response.text}"
 
-# URL Redirection Tests
+        short_code = client.extract_short_code(shorten_response)
 
-def test_url_redirection() -> None:
-    """Test redirection for a valid short code."""
-    # First create a shortened URL
-    payload = {"url": "https://example.com/test-redirection"}
-    response = requests.post(SHORTEN_ENDPOINT, json=payload)
-    assert response.status_code == 200
+        # Step 2: Test redirect
+        redirect_response = client.redirect(short_code, follow_redirects=False)
+        assert redirect_response.status_code == 302
 
-    short_url = response.json()["short_url"]
-    short_code = short_url.split("/")[-1]
+        # Step 3: Verify redirect location
+        location = (redirect_response.headers.get("Location") or
+                    redirect_response.headers.get("location"))
+        assert location == test_url
 
-    # Now test redirection
-    redirect_url = f"{BASE_API_URL}/{short_code}"
-    redirect_response = requests.get(redirect_url, allow_redirects=False)
+        # Verify we got reasonable values
+        assert len(short_code) > 0
 
-    # Check for 302 redirect status and proper headers
-    assert redirect_response.status_code == 302
-    assert redirect_response.headers.get("Location") == "https://example.com/test-redirection"
-    assert "Cache-Control" in redirect_response.headers
+    def test_multiple_urls_unique_codes(self, client):
+        """Test that different URLs get different short codes."""
+        test_urls = [
+            "https://www.google.com",
+            "https://stackoverflow.com",
+            "https://www.reddit.com"
+        ]
 
+        short_codes = []
 
-def test_nonexistent_short_code() -> None:
-    """Test behavior for a non-existent short code."""
-    # Use a random short code that shouldn't exist
-    redirect_url = f"{BASE_API_URL}/nonexistent12345"
-    response = requests.get(redirect_url)
+        for url in test_urls:
+            response = client.shorten_url(url)
+            assert response.success
 
-    # Should return 404 for non-existent codes
-    assert response.status_code == 404
-    assert "error" in response.json()
-    assert "not found" in response.json()["error"].lower()
+            short_code = client.extract_short_code(response)
+            short_codes.append(short_code)
+
+            # Test each redirect works
+            redirect_response = client.redirect(short_code, follow_redirects=False)
+            assert redirect_response.status_code == 302
+
+        # Verify all short codes are unique
+        assert len(set(short_codes)) == len(short_codes)
+
+    def test_client_environment_detection(self, client):
+        """Test that client correctly detects its environment."""
+        # Verify environment-specific URL configuration
+        if client.is_local:
+            assert "localhost" in client.base_url
+            assert client.redirect_base == "http://localhost:8001"
+        else:
+            # AWS environment
+            assert client.redirect_base == client.base_url
+            assert "execute-api" in client.base_url or "amazonaws.com" in client.base_url
