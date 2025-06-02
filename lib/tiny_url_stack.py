@@ -47,6 +47,14 @@ class TinyUrlStack(Stack):
             description="URL for the /shorten endpoint",
         )
 
+        # 5. Output the DynamoDB table name
+        CfnOutput(
+            self,
+            "TableName",
+            value=url_table.table_name,
+            description="Name of the DynamoDB table for URL mappings",
+        )
+
     def _create_dynamo_table(self) -> dynamodb.Table:
         """Create DynamoDB table for URL mappings.
 

@@ -1,4 +1,4 @@
-.PHONY: lint lt e2e e2e-aws install cdk-synth cdk-bootstrap deploy destroy docker-build docker-up docker-down docker-test docker-setup docker-logs docker-clean table-peek
+.PHONY: lint lt e2e e2e-aws install cdk-synth cdk-bootstrap deploy destroy docker-build docker-up docker-down docker-test docker-setup docker-logs docker-clean table-peek table-peek-aws
 
 lint:
 	pre-commit run --all-files
@@ -113,6 +113,52 @@ table-peek:
 		echo "📄 First 3 rows:"; \
 		echo ""; \
 		aws dynamodb scan --table-name url_mappings --endpoint-url http://localhost:8002 --limit 3 --query 'Items' --output json 2>/dev/null | \
+		jq -r '(["Short Code", "Long URL", "Created", "Expires"] | @tsv), (["----------", "--------", "-------", "-------"] | @tsv), (.[] | [.short_code.S, (.long_url.S | if length > 50 then .[0:47] + "..." else . end), (.creation_date.S | split("T")[0]), (.expires_at.N | tonumber | strftime("%Y-%m-%d"))] | @tsv)' | \
+		column -t -s $$'\t'; \
+	fi; \
+	echo ""
+
+table-peek-aws:
+	# Peek at AWS-deployed DynamoDB table contents (first 3 rows + count)
+	@echo "🔍 DynamoDB Table: url_mappings (AWS)"
+	@echo "🌍 Connection: AWS Production"
+	@echo ""
+	@if ! command -v aws &> /dev/null; then \
+		echo "❌ AWS CLI not found. Please install it first."; \
+		exit 1; \
+	fi; \
+	ALL_STACKS=$$(aws cloudformation list-stacks --stack-status-filter CREATE_COMPLETE UPDATE_COMPLETE --query 'StackSummaries[?StackName!=`CDKToolkit`].StackName' --output text 2>/dev/null || echo ""); \
+	if [ -z "$$ALL_STACKS" ]; then \
+		echo "❌ No deployed AWS stacks found."; \
+		echo "   Deploy the app first with: make deploy"; \
+		exit 1; \
+	fi; \
+	STACK_COUNT=$$(echo "$$ALL_STACKS" | wc -w); \
+	echo "🔍 Found $$STACK_COUNT total stacks"; \
+	TINY_STACKS=$$(echo "$$ALL_STACKS" | tr ' ' '\n' | grep -i -E '(tiny|url)' | head -3 | tr '\n' ' ' | sed 's/ $$//' || echo ""); \
+	if [ -n "$$TINY_STACKS" ]; then \
+		TARGET_STACK=$$(echo "$$TINY_STACKS" | awk '{print $$1}'); \
+	else \
+		echo "❌ No tiny-url related stacks found in $$STACK_COUNT total stacks."; \
+		echo "   Deploy the tiny-url app first with: make deploy"; \
+		exit 1; \
+	fi; \
+	echo "✅ Using stack: $$TARGET_STACK"; \
+	TABLE_NAME=$$(aws cloudformation describe-stacks --stack-name "$$TARGET_STACK" --query 'Stacks[0].Outputs[?OutputKey==`TableName`].OutputValue' --output text 2>/dev/null || echo "url_mappings"); \
+	if [ -z "$$TABLE_NAME" ]; then \
+		TABLE_NAME="url_mappings"; \
+	fi; \
+	echo "📊 Table: $$TABLE_NAME"; \
+	echo ""; \
+	TOTAL_COUNT=$$(aws dynamodb scan --table-name "$$TABLE_NAME" --select COUNT --query 'Count' --output text 2>/dev/null || echo "0"); \
+	echo "📈 Total items: $$TOTAL_COUNT"; \
+	echo ""; \
+	if [ "$$TOTAL_COUNT" = "0" ]; then \
+		echo "📭 Table is empty"; \
+	else \
+		echo "📄 First 3 rows:"; \
+		echo ""; \
+		aws dynamodb scan --table-name "$$TABLE_NAME" --limit 3 --query 'Items' --output json 2>/dev/null | \
 		jq -r '(["Short Code", "Long URL", "Created", "Expires"] | @tsv), (["----------", "--------", "-------", "-------"] | @tsv), (.[] | [.short_code.S, (.long_url.S | if length > 50 then .[0:47] + "..." else . end), (.creation_date.S | split("T")[0]), (.expires_at.N | tonumber | strftime("%Y-%m-%d"))] | @tsv)' | \
 		column -t -s $$'\t'; \
 	fi; \
