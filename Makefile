@@ -22,18 +22,26 @@ e2e-aws:
 		echo "❌ AWS CLI not found. Please install it first."; \
 		exit 1; \
 	fi; \
-	DEPLOYED_STACKS=$$(aws cloudformation list-stacks --stack-status-filter CREATE_COMPLETE UPDATE_COMPLETE --query 'StackSummaries[?StackName!=`CDKToolkit`].StackName' --output text 2>/dev/null || echo ""); \
-	if [ -z "$$DEPLOYED_STACKS" ]; then \
+	ALL_STACKS=$$(aws cloudformation list-stacks --stack-status-filter CREATE_COMPLETE UPDATE_COMPLETE --query 'StackSummaries[?StackName!=`CDKToolkit`].StackName' --output text 2>/dev/null || echo ""); \
+	if [ -z "$$ALL_STACKS" ]; then \
 		echo "❌ No deployed AWS stacks found."; \
 		echo "   Deploy the app first with: make deploy"; \
 		exit 1; \
 	fi; \
-	echo "✅ Found deployed stack(s): $$DEPLOYED_STACKS"; \
-	echo "🔍 Extracting API endpoint..."; \
-	STACK_NAME=$$(echo "$$DEPLOYED_STACKS" | head -1); \
-	API_URL=$$(aws cloudformation describe-stacks --stack-name "$$STACK_NAME" --query 'Stacks[0].Outputs[?contains(OutputValue, `execute-api`)].OutputValue' --output text 2>/dev/null | awk '{print $$1}' || echo ""); \
+	STACK_COUNT=$$(echo "$$ALL_STACKS" | wc -w); \
+	echo "✅ Found $$STACK_COUNT total stacks"; \
+	TINY_STACKS=$$(echo "$$ALL_STACKS" | tr ' ' '\n' | grep -i -E '(tiny|url)' | head -3 | tr '\n' ' ' | sed 's/ $$//' || echo ""); \
+	if [ -n "$$TINY_STACKS" ]; then \
+		TARGET_STACK=$$(echo "$$TINY_STACKS" | awk '{print $$1}'); \
+	else \
+		echo "❌ No tiny-url related stacks found in $$STACK_COUNT total stacks."; \
+		echo "   Deploy the tiny-url app first with: make deploy"; \
+		exit 1; \
+	fi; \
+	echo "🔍 Using stack: $$TARGET_STACK"; \
+	API_URL=$$(aws cloudformation describe-stacks --stack-name "$$TARGET_STACK" --query 'Stacks[0].Outputs[?contains(OutputValue, `execute-api`)].OutputValue' --output text 2>/dev/null | awk '{print $$1}' || echo ""); \
 	if [ -z "$$API_URL" ]; then \
-		echo "❌ Could not extract API endpoint from deployed stack."; \
+		echo "❌ Could not extract API endpoint from stack: $$TARGET_STACK"; \
 		echo "   Make sure the stack has an API Gateway output."; \
 		exit 1; \
 	fi; \
