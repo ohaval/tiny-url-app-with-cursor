@@ -18,15 +18,11 @@ e2e:
 # Run e2e tests against deployed AWS version (auto-detects API endpoint)
 e2e-aws:
 	@echo "🔍 Checking for deployed AWS stack..."
-	@if ! command -v cdk &> /dev/null; then \
-		echo "❌ AWS CDK CLI not found. Please install it with: npm install -g aws-cdk"; \
-		exit 1; \
-	fi; \
-	if ! command -v aws &> /dev/null; then \
+	@if ! command -v aws &> /dev/null; then \
 		echo "❌ AWS CLI not found. Please install it first."; \
 		exit 1; \
 	fi; \
-	DEPLOYED_STACKS=$$(cdk list --deployed 2>/dev/null || echo ""); \
+	DEPLOYED_STACKS=$$(aws cloudformation list-stacks --stack-status-filter CREATE_COMPLETE UPDATE_COMPLETE --query 'StackSummaries[?StackName!=`CDKToolkit`].StackName' --output text 2>/dev/null || echo ""); \
 	if [ -z "$$DEPLOYED_STACKS" ]; then \
 		echo "❌ No deployed AWS stacks found."; \
 		echo "   Deploy the app first with: make deploy"; \
