@@ -1,4 +1,4 @@
-.PHONY: lint lt e2e e2e-aws install cdk-synth cdk-bootstrap deploy destroy docker-build docker-up docker-down docker-test docker-setup docker-logs docker-clean
+.PHONY: lint lt e2e e2e-aws install cdk-synth cdk-bootstrap deploy destroy docker-build docker-up docker-down docker-test docker-setup docker-logs docker-clean table-peek
 
 lint:
 	pre-commit run --all-files
@@ -94,3 +94,26 @@ docker-clean:
 	# Clean up Docker resources (images, containers, volumes)
 	docker-compose down -v
 	docker system prune -f
+
+table-peek:
+	# Peek at DynamoDB table contents (first 3 rows + count)
+	@echo "🔍 DynamoDB Table: url_mappings"
+	@echo "📊 Connection: http://localhost:8002"
+	@echo ""
+	@if ! docker ps | grep -q dynamodb-local; then \
+		echo "❌ DynamoDB Local not running. Start with: make docker-up"; \
+		exit 1; \
+	fi; \
+	TOTAL_COUNT=$$(aws dynamodb scan --table-name url_mappings --endpoint-url http://localhost:8002 --select COUNT --query 'Count' --output text 2>/dev/null || echo "0"); \
+	echo "📈 Total items: $$TOTAL_COUNT"; \
+	echo ""; \
+	if [ "$$TOTAL_COUNT" = "0" ]; then \
+		echo "📭 Table is empty"; \
+	else \
+		echo "📄 First 3 rows:"; \
+		echo ""; \
+		aws dynamodb scan --table-name url_mappings --endpoint-url http://localhost:8002 --limit 3 --query 'Items' --output json 2>/dev/null | \
+		jq -r '(["Short Code", "Long URL", "Created", "Expires"] | @tsv), (["----------", "--------", "-------", "-------"] | @tsv), (.[] | [.short_code.S, (.long_url.S | if length > 50 then .[0:47] + "..." else . end), (.creation_date.S | split("T")[0]), (.expires_at.N | tonumber | strftime("%Y-%m-%d"))] | @tsv)' | \
+		column -t -s $$'\t'; \
+	fi; \
+	echo ""
