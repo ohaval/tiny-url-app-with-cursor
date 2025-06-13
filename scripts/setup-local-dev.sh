@@ -77,7 +77,7 @@ wait_for_dynamodb() {
 
 # Step 1: Start Docker Compose services
 echo -e "${YELLOW}📦 Starting Docker Compose services...${NC}"
-docker-compose up -d
+docker compose up -d
 
 # Step 2: Wait for DynamoDB Local to be ready
 wait_for_dynamodb
@@ -123,4 +123,4 @@ echo "  • Create short URL: curl -X POST $SHORTEN_SERVICE_URL/shorten -H 'Cont
 echo "  • List tables: aws dynamodb list-tables --endpoint-url $DYNAMODB_ENDPOINT"
 echo ""
 echo -e "${YELLOW}🛑 To stop services:${NC}"
-echo "  docker-compose down"
+echo "  docker compose down"

@@ -22,33 +22,9 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
-    - name: Build and start services
+    - name: Setup and start containerized services
       run: |
-        make docker-build
-        make docker-up
-
-    - name: Wait for services to be ready
-      run: |
-        # Wait for DynamoDB Local
-        echo "Waiting for DynamoDB Local..."
-        timeout 60 bash -c 'until aws dynamodb list-tables --endpoint-url http://localhost:8002 > /dev/null 2>&1; do sleep 2; done'
-
-        # Wait for shorten service
-        echo "Waiting for shorten service..."
-        timeout 60 bash -c 'until curl -f http://localhost:8000/health > /dev/null 2>&1; do sleep 2; done'
-
-        # Wait for redirect service
-        echo "Waiting for redirect service..."
-        timeout 60 bash -c 'until curl -f http://localhost:8001/health > /dev/null 2>&1; do sleep 2; done'
-
-    - name: Create DynamoDB table
-      run: |
-        aws dynamodb create-table \
-          --table-name url_mappings \
-          --attribute-definitions AttributeName=short_code,AttributeType=S \
-          --key-schema AttributeName=short_code,KeyType=HASH \
-          --billing-mode PAY_PER_REQUEST \
-          --endpoint-url http://localhost:8002 || true
+        make docker-setup
 
     - name: Run E2E tests against Docker services
       run: |
@@ -58,11 +34,11 @@ jobs:
       if: failure()
       run: |
         echo "=== Shorten Service Logs ==="
-        docker-compose logs shorten
+        docker compose logs shorten
         echo "=== Redirect Service Logs ==="
-        docker-compose logs redirect
+        docker compose logs redirect
         echo "=== DynamoDB Local Logs ==="
-        docker-compose logs dynamodb-local
+        docker compose logs dynamodb-local
 
     - name: Cleanup
       if: always()

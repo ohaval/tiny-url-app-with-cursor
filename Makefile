@@ -68,15 +68,15 @@ destroy:
 # Docker commands for containerized development
 docker-build:
 	# Build Docker images for both microservices
-	docker-compose build
+	docker compose build
 
 docker-up:
 	# Start all containerized services in detached mode
-	docker-compose up -d
+	docker compose up -d
 
 docker-down:
 	# Stop and remove all containerized services
-	docker-compose down
+	docker compose down
 
 docker-setup:
 	# Complete setup of local containerized development environment
@@ -84,11 +84,11 @@ docker-setup:
 
 docker-logs:
 	# View logs from all services
-	docker-compose logs -f
+	docker compose logs -f
 
 docker-clean:
 	# Clean up Docker resources (images, containers, volumes)
-	docker-compose down -v
+	docker compose down -v
 	docker system prune -f
 
 table-peek:
