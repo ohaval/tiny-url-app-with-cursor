@@ -3,6 +3,10 @@ description:
 globs:
 alwaysApply: true
 ---
+# Make command and Makefile
+
+- Always prefer to use make commands when running terminal commands, or when implementing bash scripts / CI-CD scripts. The idea is that the Makefile will be a source of high-quality set of actions we might want to do.
+
 # Code formats
 
 - Always prefer to use absolute imports instead of relative ones.
