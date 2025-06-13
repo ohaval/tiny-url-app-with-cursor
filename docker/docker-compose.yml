@@ -2,7 +2,7 @@ services:
   # URL Shortening Service
   shorten:
     build:
-      context: .
+      context: ..
       dockerfile: docker/shorten/Dockerfile
     ports:
       - "8000:8000"
@@ -25,7 +25,7 @@ services:
   # URL Redirection Service
   redirect:
     build:
-      context: .
+      context: ..
       dockerfile: docker/redirect/Dockerfile
     ports:
       - "8001:8001"

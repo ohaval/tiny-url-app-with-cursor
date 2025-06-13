@@ -96,7 +96,7 @@ class TinyUrlStack(Stack):
             function_name="tiny_url_shorten",
             runtime=lambda_.Runtime.PYTHON_3_11,
             code=lambda_.Code.from_asset(
-                ".",
+                "..",
                 bundling={
                     "image": lambda_.Runtime.PYTHON_3_11.bundling_image,
                     "command": [
@@ -138,7 +138,7 @@ class TinyUrlStack(Stack):
             function_name="tiny_url_redirect",
             runtime=lambda_.Runtime.PYTHON_3_11,
             code=lambda_.Code.from_asset(
-                ".",
+                "..",
                 bundling={
                     "image": lambda_.Runtime.PYTHON_3_11.bundling_image,
                     "command": [
