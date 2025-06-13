@@ -49,7 +49,7 @@ This document outlines a structured approach to learning Kubernetes and Amazon E
 - `docker-compose.yml` ✅
 - Updated README with Docker instructions ✅
 - `scripts/setup-local-dev.sh` - Automated setup script ✅
-- `scripts/test-services.sh` - Comprehensive testing script ✅
+- `make e2e` - Comprehensive E2E tests for both local and AWS ✅
 - Updated Makefile with Docker commands ✅
 
 ### Phase 2: Local Kubernetes (Week 2)
@@ -235,7 +235,7 @@ kubectl port-forward service/<service-name> 8080:80
 - `docker/requirements-container.txt` - Container-specific dependencies
 - `docker-compose.yml` - Multi-service orchestration
 - `scripts/setup-local-dev.sh` - Automated environment setup
-- `scripts/test-services.sh` - Comprehensive testing suite
+- `make e2e` - Comprehensive E2E tests for both local and AWS
 - Updated `Makefile` with Docker commands
 - Updated `src/utils/dynamo_ops.py` for local development support
 
