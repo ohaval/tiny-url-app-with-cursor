@@ -13,6 +13,9 @@ TABLE_NAME="url_mappings"
 SHORTEN_SERVICE_URL="http://localhost:8000"
 REDIRECT_SERVICE_URL="http://localhost:8001"
 
+# Set default AWS region if not already set (needed for DynamoDB Local)
+export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-1}
+
 echo -e "${GREEN}🚀 Setting up local development environment for tiny-url-app${NC}"
 
 # Function to check if a service is running
