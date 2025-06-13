@@ -36,14 +36,8 @@ For detailed information, see:
    # Run linting
    make lint
 
-   # Run e2e tests (works with both local containerized and deployed AWS)
+   # Run e2e tests (works by default with local containerized services)
    make e2e
-
-   # Run e2e tests against deployed AWS (auto-detects API endpoint)
-   make e2e-aws
-
-   # Run e2e tests against specific AWS deployment
-   API_ENDPOINT=https://api-id.execute-api.region.amazonaws.com/prod make e2e
    ```
 
 4. Deployment
@@ -119,7 +113,6 @@ redirect_response = client.redirect(short_code)
 | `make e2e-aws` | Run e2e tests against deployed AWS (auto-detects endpoint)  |
 | `make docker-setup` | Setup and start containerized development environment |
 | `make docker-down` | Stop containerized services                        |
-| `make docker-test` | Run tests against containerized services (bash-based) |
 | `make docker-logs` | View logs from containerized services              |
 | `make cdk-synth` | Synthesize CloudFormation templates from CDK code          |
 | `make cdk-bootstrap` | Bootstrap AWS resources for CDK deployments           |
@@ -136,8 +129,5 @@ redirect_response = client.redirect(short_code)
   - Tests full HTTP request/response cycle
   - Demonstrates client usage and capabilities
   - Validates complete workflows end-to-end
-- **Docker Tests (`make docker-test`)**: Bash-based smoke tests for containerized services
-  - Simple health and functionality checks
-  - Container orchestration validation
 
 The e2e tests serve dual purpose: comprehensive testing AND demonstration of the API client across all environments.
