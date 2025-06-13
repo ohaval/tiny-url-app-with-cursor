@@ -35,25 +35,6 @@
 - CloudWatch for monitoring
 - CloudFront for caching (future)
 
-## Project Structure
-```
-tiny-url/
-├── src/
-│   ├── handlers/         # Lambda functions
-│   └── utils/           # Shared utilities
-├── tests/
-│   ├── component/       # Component tests
-│   └── e2e/             # End-to-end tests for deployed API
-├── lib/                 # CDK infrastructure
-├── docker/              # Docker containerization
-│   ├── shorten/         # Shorten service container
-│   └── redirect/        # Redirect service container
-├── scripts/             # Development scripts
-├── app.py              # CDK app entry
-├── docker-compose.yml  # Local development orchestration
-└── cdk.json           # CDK config
-```
-
 ## Testing Strategy
 - **Component Tests**: Unit tests with mocked dependencies
 - **E2E Tests**: Unified testing framework that works with both local Docker and AWS deployments
@@ -64,9 +45,3 @@ tiny-url/
 - Use API Gateway caching for frequently accessed URLs
 - Consider DynamoDB DAX for high-volume scenarios
 - Implement proper CloudWatch alarms for latency monitoring
-
-## Initial Usage Estimates
-- Storage: ~100 bytes per URL record
-- Read/Write ratio: 10:1 (more reads than writes)
-- Initial capacity: 10K URLs/month
-- Expected latency: <100ms for redirects
