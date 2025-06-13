@@ -82,20 +82,11 @@ wait_for_dynamodb() {
 echo -e "${YELLOW}📦 Starting Docker Compose services...${NC}"
 docker compose up -d
 
-# Export dummy AWS credentials to avoid "Unable to locate credentials. You can configure credentials by running "aws configure".
-export AWS_ACCESS_KEY_ID=dummy
-export AWS_SECRET_ACCESS_KEY=dummy
-
 # Step 2: Wait for DynamoDB Local to be ready
 wait_for_dynamodb
-# sleep 5
 
 # Step 3: Create DynamoDB table
 echo -e "${YELLOW}🗄️  Creating DynamoDB table: $TABLE_NAME${NC}"
-
-echo "Running command: aws dynamodb describe-table --table-name $TABLE_NAME --endpoint-url $DYNAMODB_ENDPOINT"
-
-
 
 # Check if table already exists
 if aws dynamodb describe-table --table-name "$TABLE_NAME" --endpoint-url "$DYNAMODB_ENDPOINT" > /dev/null 2>&1; then
