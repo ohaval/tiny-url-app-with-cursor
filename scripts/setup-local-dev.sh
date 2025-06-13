@@ -89,6 +89,8 @@ sleep 5
 # Step 3: Create DynamoDB table
 echo -e "${YELLOW}🗄️  Creating DynamoDB table: $TABLE_NAME${NC}"
 
+echo "Running command: aws dynamodb describe-table --table-name $TABLE_NAME --endpoint-url $DYNAMODB_ENDPOINT"
+
 # Check if table already exists
 if aws dynamodb describe-table --table-name "$TABLE_NAME" --endpoint-url "$DYNAMODB_ENDPOINT" > /dev/null 2>&1; then
     echo -e "${YELLOW}⚠️  Table $TABLE_NAME already exists, skipping creation${NC}"
