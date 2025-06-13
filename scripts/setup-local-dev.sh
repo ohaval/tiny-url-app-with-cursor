@@ -80,7 +80,8 @@ echo -e "${YELLOW}📦 Starting Docker Compose services...${NC}"
 docker compose up -d
 
 # Step 2: Wait for DynamoDB Local to be ready
-wait_for_dynamodb
+# wait_for_dynamodb
+sleep 5
 
 # Step 3: Create DynamoDB table
 echo -e "${YELLOW}🗄️  Creating DynamoDB table: $TABLE_NAME${NC}"
