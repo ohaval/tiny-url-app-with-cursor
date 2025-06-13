@@ -13,10 +13,10 @@ REDIRECT_SERVICE_URL="http://localhost:8001"
 DYNAMODB_ENDPOINT="http://localhost:8002"
 TABLE_NAME="url_mappings"
 
-# Set default AWS region if not already set (needed for DynamoDB Local)
-export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-1}
-
 echo -e "${GREEN}🚀 Setting up local development environment for tiny-url-app${NC}"
+echo -e "${YELLOW}⚠️  Make sure AWS credentials are configured to run this script properly${NC}"
+echo -e "${YELLOW}   (via ~/.aws/credentials, environment variables, or aws-vault)${NC}"
+echo ""
 
 # Function to check if a service is running
 check_service() {
