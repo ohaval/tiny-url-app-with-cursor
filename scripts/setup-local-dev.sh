@@ -8,10 +8,10 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Configuration
-DYNAMODB_ENDPOINT="http://localhost:8002"
-TABLE_NAME="url_mappings"
 SHORTEN_SERVICE_URL="http://localhost:8000"
 REDIRECT_SERVICE_URL="http://localhost:8001"
+DYNAMODB_ENDPOINT="http://localhost:8002"
+TABLE_NAME="url_mappings"
 
 # Set default AWS region if not already set (needed for DynamoDB Local)
 export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-1}
