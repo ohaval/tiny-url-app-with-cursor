@@ -118,7 +118,6 @@ redirect_response = client.redirect(short_code)
 | `make e2e`     | Run end-to-end tests (works with both local and AWS)        |
 | `make e2e-aws` | Run e2e tests against deployed AWS (auto-detects endpoint)  |
 | `make docker-setup` | Setup and start containerized development environment |
-| `make docker-up` | Start containerized services                          |
 | `make docker-down` | Stop containerized services                        |
 | `make docker-test` | Run tests against containerized services (bash-based) |
 | `make docker-logs` | View logs from containerized services              |

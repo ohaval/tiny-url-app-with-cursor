@@ -1,4 +1,4 @@
-.PHONY: lint lt e2e e2e-aws install cdk-synth cdk-bootstrap deploy destroy docker-build docker-up docker-down docker-setup docker-logs docker-clean table-peek table-peek-aws
+.PHONY: lint lt e2e e2e-aws install cdk-synth cdk-bootstrap deploy destroy docker-build docker-down docker-setup docker-logs docker-clean table-peek table-peek-aws
 
 lint:
 	pre-commit run --all-files
@@ -70,10 +70,6 @@ docker-build:
 	# Build Docker images for both microservices
 	cd docker && docker compose build
 
-docker-up:
-	# Start all containerized services in detached mode
-	cd docker && docker compose up -d
-
 docker-down:
 	# Stop and remove all containerized services
 	cd docker && docker compose down
@@ -97,7 +93,7 @@ table-peek:
 	@echo "📊 Connection: http://localhost:8002"
 	@echo ""
 	@if ! docker ps | grep -q dynamodb-local; then \
-		echo "❌ DynamoDB Local not running. Start with: make docker-up"; \
+		echo "❌ DynamoDB Local not running. Start with: make docker-setup"; \
 		exit 1; \
 	fi; \
 	TOTAL_COUNT=$$(aws dynamodb scan --table-name url_mappings --endpoint-url http://localhost:8002 --select COUNT --query 'Count' --output text 2>/dev/null || echo "0"); \
