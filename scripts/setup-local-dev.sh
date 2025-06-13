@@ -91,6 +91,11 @@ echo -e "${YELLOW}🗄️  Creating DynamoDB table: $TABLE_NAME${NC}"
 
 echo "Running command: aws dynamodb describe-table --table-name $TABLE_NAME --endpoint-url $DYNAMODB_ENDPOINT"
 
+# Export dummy AWS credentials to avoid "Unable to locate credentials. You can configure credentials by running "aws configure".
+export AWS_ACCESS_KEY_ID=dummy
+export AWS_SECRET_ACCESS_KEY=dummy
+export AWS_SESSION_TOKEN=dummy
+
 # Check if table already exists
 if aws dynamodb describe-table --table-name "$TABLE_NAME" --endpoint-url "$DYNAMODB_ENDPOINT" > /dev/null 2>&1; then
     echo -e "${YELLOW}⚠️  Table $TABLE_NAME already exists, skipping creation${NC}"
