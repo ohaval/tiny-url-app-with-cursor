@@ -1,4 +1,4 @@
-.PHONY: lint lt e2e e2e-aws install cdk-synth cdk-bootstrap deploy destroy docker-build docker-up docker-down docker-test docker-setup docker-logs docker-clean table-peek table-peek-aws
+.PHONY: lint lt e2e e2e-aws install cdk-synth cdk-bootstrap deploy destroy docker-build docker-up docker-down docker-setup docker-logs docker-clean table-peek table-peek-aws
 
 lint:
 	pre-commit run --all-files
@@ -81,10 +81,6 @@ docker-down:
 docker-setup:
 	# Complete setup of local containerized development environment
 	./scripts/setup-local-dev.sh
-
-docker-test:
-	# Run comprehensive tests against containerized services
-	./scripts/test-services.sh
 
 docker-logs:
 	# View logs from all services
