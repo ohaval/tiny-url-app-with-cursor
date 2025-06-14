@@ -9,7 +9,7 @@ metadata:
 data:
   AWS_DEFAULT_REGION: "us-east-1"
   PORT: "8000"
-  # Point to redirect service (will be created next)
-  BASE_URL: "http://redirect-service:8001"
+  # Point to redirect service via localhost for e2e testing
+  BASE_URL: "http://localhost:8001"
   # Point to DynamoDB service we already created
   DYNAMODB_ENDPOINT_URL: "http://dynamodb-service:8000"

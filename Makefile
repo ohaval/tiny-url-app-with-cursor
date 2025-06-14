@@ -1,4 +1,4 @@
-.PHONY: lint lt e2e e2e-aws install cdk-synth cdk-bootstrap deploy destroy docker-build docker-down docker-setup docker-logs docker-clean k8s-setup k8s-down k8s-clean k8s-status table-peek table-peek-aws
+.PHONY: lint lt e2e e2e-aws e2e-k8s install cdk-synth cdk-bootstrap deploy destroy docker-build docker-down docker-setup docker-logs docker-clean k8s-setup k8s-down k8s-clean k8s-status table-peek table-peek-aws
 
 lint:
 	pre-commit run --all-files
@@ -48,6 +48,48 @@ e2e-aws:
 	echo "✅ Found API endpoint: $$API_URL"; \
 	echo "🧪 Running e2e tests against deployed AWS services..."; \
 	API_ENDPOINT=$$API_URL python -m pytest tests/e2e/test_e2e.py -v --log-cli-level=INFO
+
+# Run e2e tests against local Kubernetes deployment
+e2e-k8s:
+	@echo "🔍 Checking for local Kubernetes cluster..."
+	@if ! command -v kubectl &> /dev/null; then \
+		echo "❌ kubectl not found. Please install it first."; \
+		exit 1; \
+	fi; \
+	if ! kubectl config current-context | grep -q "kind-tiny-url-local"; then \
+		echo "❌ Not connected to tiny-url-local cluster."; \
+		echo "   Run 'make k8s-setup' first or switch context."; \
+		exit 1; \
+	fi; \
+	if ! kubectl get pods -n tiny-url | grep -q "Running"; then \
+		echo "❌ No running pods found in tiny-url namespace."; \
+		echo "   Run 'make k8s-setup' to deploy services."; \
+		exit 1; \
+	fi; \
+	echo "✅ Kubernetes cluster and services ready"; \
+	echo "🛑 Stopping Docker Compose services (if running)..."; \
+	make docker-down 2>/dev/null || true; \
+	echo "🔄 Setting up port forwarding..."; \
+	echo "   • Shorten service: localhost:8000 → shorten-service:8000"; \
+	echo "   • Redirect service: localhost:8001 → redirect-service:8001"; \
+	(kubectl port-forward service/shorten-service 8000:8000 -n tiny-url > /dev/null 2>&1 &); \
+	(kubectl port-forward service/redirect-service 8001:8001 -n tiny-url > /dev/null 2>&1 &); \
+	echo "⏳ Waiting for port forwards to be ready..."; \
+	sleep 5; \
+	echo "✅ Port forwarding established"; \
+	echo "🧪 Running e2e tests against local Kubernetes..."; \
+	if python -m pytest tests/e2e/test_e2e.py -v --log-cli-level=INFO; then \
+		echo "✅ E2E tests passed!"; \
+		EXIT_CODE=0; \
+	else \
+		echo "❌ E2E tests failed!"; \
+		EXIT_CODE=1; \
+	fi; \
+	echo "🧹 Cleaning up port forwards..."; \
+	pkill -f "kubectl port-forward.*tiny-url" 2>/dev/null || true; \
+	sleep 2; \
+	echo "✅ Cleanup complete"; \
+	exit $$EXIT_CODE
 
 cdk-synth:
 	# Synthesizes CloudFormation templates from your CDK code.
