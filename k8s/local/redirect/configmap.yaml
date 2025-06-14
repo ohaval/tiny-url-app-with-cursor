@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redirect-config
+  namespace: tiny-url
+  labels:
+    app: redirect
+    component: api
+data:
+  AWS_DEFAULT_REGION: "us-east-1"
+  PORT: "8001"
+  # Point to DynamoDB service
+  DYNAMODB_ENDPOINT_URL: "http://dynamodb-service:8000"

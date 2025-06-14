@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: dynamodb-service
+  namespace: tiny-url
+  labels:
+    app: dynamodb
+    component: database
+spec:
+  selector:
+    app: dynamodb
+  ports:
+  - port: 8000          # Service port (what other services use)
+    targetPort: 8000    # Container port (where traffic goes)
+    protocol: TCP
+    name: dynamodb
+  type: ClusterIP       # Internal only - not accessible from outside

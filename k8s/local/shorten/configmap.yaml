@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shorten-config
+  namespace: tiny-url
+  labels:
+    app: shorten
+    component: api
+data:
+  AWS_DEFAULT_REGION: "us-east-1"
+  PORT: "8000"
+  # Point to redirect service (will be created next)
+  BASE_URL: "http://redirect-service:8001"
+  # Point to DynamoDB service we already created
+  DYNAMODB_ENDPOINT_URL: "http://dynamodb-service:8000"

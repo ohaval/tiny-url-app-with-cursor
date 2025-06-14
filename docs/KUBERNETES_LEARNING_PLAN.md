@@ -56,11 +56,11 @@ This document outlines a structured approach to learning Kubernetes and Amazon E
 **Goal**: Deploy application to local Kubernetes cluster
 
 #### Tasks
-- [ ] Install minikube or kind
-- [ ] Create Kubernetes manifests for services
-- [ ] Deploy to local cluster
-- [ ] Learn kubectl commands
-- [ ] Set up local development workflow
+- [x] Install minikube or kind
+- [x] Create Kubernetes manifests for services
+- [x] Deploy to local cluster
+- [x] Learn kubectl commands
+- [x] Set up local development workflow
 
 #### Key Concepts to Learn
 - **Core Objects**:
@@ -74,9 +74,11 @@ This document outlines a structured approach to learning Kubernetes and Amazon E
 - **kubectl**: Essential commands and debugging
 
 #### Deliverables
-- `k8s/local/` directory with manifests
-- Local deployment documentation
-- kubectl cheat sheet
+- `k8s/local/` directory with manifests ✅
+- Local deployment documentation ✅
+- kubectl cheat sheet ✅
+- DynamoDB initialization Job ✅
+- Complete end-to-end testing ✅
 
 ### Phase 3: EKS Deployment (Week 3-4)
 **Goal**: Deploy application to production EKS cluster
@@ -173,11 +175,11 @@ kubectl port-forward service/<service-name> 8080:80
 - [x] Local testing successful
 - [x] Documentation updated
 
-### Phase 2: Local Kubernetes
-- [ ] Local cluster running
-- [ ] Application deployed locally
-- [ ] kubectl proficiency achieved
-- [ ] Core concepts mastered
+### Phase 2: Local Kubernetes ✅
+- [x] Local cluster running
+- [x] Application deployed locally
+- [x] kubectl proficiency achieved
+- [x] Core concepts mastered
 
 ### Phase 3: EKS Deployment
 - [ ] EKS cluster created
@@ -241,4 +243,44 @@ kubectl port-forward service/<service-name> 8080:80
 
 ---
 
-**Next Step**: Begin Phase 2 by setting up local Kubernetes cluster and creating K8s manifests.
+### Phase 2 Learnings ✅
+**Kubernetes Concepts Mastered:**
+- **Core Objects**: Namespaces, Deployments, Services, ConfigMaps, Jobs
+- **Multi-replica deployments**: High availability with 2+ replicas per service
+- **Service discovery**: DNS-based communication between microservices
+- **Health probes**: Liveness and readiness checks for robust applications
+- **Resource management**: CPU/memory limits and requests
+- **Initialization patterns**: One-time setup jobs for database creation
+- **Debugging skills**: kubectl logs, describe, get commands
+
+**Key Insights:**
+- **Jobs vs Deployments**: Jobs run to completion, Deployments run forever
+- **Service types**: ClusterIP for internal communication, others for external access
+- **ConfigMaps**: Clean separation of configuration from container images
+- **Image pull policies**: `Never` for local development, `Always` for production
+- **Kubernetes networking**: Every service gets a DNS name (`service-name.namespace`)
+- **Real debugging**: Reading logs and troubleshooting production-like issues
+
+**Files Created:**
+- `k8s/local/namespace.yaml` - Application namespace isolation
+- `k8s/local/dynamodb/deployment.yaml` - Database deployment
+- `k8s/local/dynamodb/service.yaml` - Database networking
+- `k8s/local/dynamodb/init-job.yaml` - Database initialization
+- `k8s/local/shorten/configmap.yaml` - Shorten service configuration
+- `k8s/local/shorten/deployment.yaml` - Shorten service deployment
+- `k8s/local/shorten/service.yaml` - Shorten service networking
+- `k8s/local/redirect/configmap.yaml` - Redirect service configuration
+- `k8s/local/redirect/deployment.yaml` - Redirect service deployment
+- `k8s/local/redirect/service.yaml` - Redirect service networking
+
+**Production-Ready Features Implemented:**
+- Multi-replica deployments for high availability
+- Proper health checks for zero-downtime deployments
+- Resource limits for safe resource usage
+- Service discovery for microservices communication
+- Database initialization automation
+- Complete end-to-end testing and validation
+
+---
+
+**Next Step**: Begin Phase 3 by creating EKS cluster with AWS CDK and deploying to production.
