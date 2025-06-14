@@ -91,10 +91,13 @@
   - URL validation edge cases ✅
 
 - **E2E Tests**: ✅
-  - Tests against the deployed API ✅
+  - Tests against multiple environments: ✅
+    - `make e2e` - Local Docker Compose services ✅
+    - `make e2e-aws` - Deployed AWS services (auto-detects endpoint) ✅
+    - `make e2e-k8s` - Local Kubernetes deployment (via port forwarding) ✅
   - Verifies expected responses and error handling ✅
-  - Confirms behavior in production environment ✅
-  - Environment auto-detection (local Docker vs AWS) ✅
+  - Confirms behavior across all deployment environments ✅
+  - Environment auto-detection (local Docker vs AWS vs K8s) ✅
   - Test complete URL shortening and redirection workflow ✅
   - Test custom short codes and error handling ✅
   - Test multiple URLs with unique codes ✅
@@ -158,7 +161,8 @@
   - Test complete URL shortening and redirection workflow ✅
   - Test custom short codes and error handling ✅
   - Test multiple URLs with unique codes ✅
-  - Environment auto-detection (local Docker vs AWS) ✅
+  - Environment auto-detection (local Docker vs AWS vs K8s) ✅
+  - Tests across all deployment environments (Docker, AWS, K8s) ✅
   - Measure redirect latency (planned)
   - Test cache behavior (planned)
   - Confirm analytics data is captured correctly (planned)

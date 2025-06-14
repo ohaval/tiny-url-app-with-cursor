@@ -28,7 +28,22 @@ For detailed information, see:
    make docker-down
    ```
 
-3. Testing & Linting
+3. Kubernetes Development
+   ```bash
+   # Setup and start local Kubernetes environment
+   make k8s-setup
+
+   # Check status
+   make k8s-status
+
+   # Stop services (keeps cluster running)
+   make k8s-down
+
+   # Destroy entire cluster
+   make k8s-clean
+   ```
+
+4. Testing & Linting
    ```bash
    # Run all local tests
    make lt
@@ -36,11 +51,13 @@ For detailed information, see:
    # Run linting
    make lint
 
-   # Run e2e tests (works by default with local containerized services)
-   make e2e
+   # Run e2e tests against different environments
+   make e2e        # Docker Compose (default)
+   make e2e-k8s    # Local Kubernetes
+   make e2e-aws    # Deployed AWS (auto-detects)
    ```
 
-4. Deployment
+5. Deployment
    ```bash
    # Install AWS CDK CLI (if not already installed)
    npm install -g aws-cdk
@@ -55,7 +72,7 @@ For detailed information, see:
    make destroy
    ```
 
-5. Post-Deployment Validation
+6. Post-Deployment Validation
    ```bash
    # After deployment, test against the deployed API (auto-detects endpoint)
    make e2e-aws
@@ -111,9 +128,14 @@ redirect_response = client.redirect(short_code)
 | `make lt`      | Run all local tests                                          |
 | `make e2e`     | Run end-to-end tests (works with both local and AWS)        |
 | `make e2e-aws` | Run e2e tests against deployed AWS (auto-detects endpoint)  |
+| `make e2e-k8s` | Run e2e tests against local Kubernetes deployment           |
 | `make docker-setup` | Setup and start containerized development environment |
 | `make docker-down` | Stop containerized services                        |
 | `make docker-logs` | View logs from containerized services              |
+| `make k8s-setup` | Setup and start local Kubernetes environment              |
+| `make k8s-down` | Remove Kubernetes resources (keeps cluster running)        |
+| `make k8s-clean` | Destroy the entire kind cluster and all resources         |
+| `make k8s-status` | Show status of local Kubernetes deployment               |
 | `make cdk-synth` | Synthesize CloudFormation templates from CDK code          |
 | `make cdk-bootstrap` | Bootstrap AWS resources for CDK deployments           |
 | `make deploy`  | Deploy the application to AWS                               |
@@ -124,8 +146,10 @@ redirect_response = client.redirect(short_code)
   - URL creation flow
   - Real DynamoDB interactions (with moto mock)
   - Business logic through actual usage paths
-- **End-to-End Tests (`make e2e`)**: Complete API tests using TinyURLClient
-  - Works against both local containerized and deployed AWS services
+- **End-to-End Tests**: Complete API tests using TinyURLClient
+  - `make e2e` - Tests against local containerized services (Docker Compose)
+  - `make e2e-aws` - Tests against deployed AWS services (auto-detects endpoint)
+  - `make e2e-k8s` - Tests against local Kubernetes deployment (via port forwarding)
   - Tests full HTTP request/response cycle
   - Demonstrates client usage and capabilities
   - Validates complete workflows end-to-end

@@ -79,6 +79,7 @@ This document outlines a structured approach to learning Kubernetes and Amazon E
 - kubectl cheat sheet ✅
 - DynamoDB initialization Job ✅
 - Complete end-to-end testing ✅
+- `make e2e-k8s` command for testing against K8s ✅
 
 ### Phase 3: EKS Deployment (Week 3-4)
 **Goal**: Deploy application to production EKS cluster
