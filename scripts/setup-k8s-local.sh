@@ -122,8 +122,8 @@ kubectl apply -f k8s/local/dynamodb/ >/dev/null
 wait_for_deployment dynamodb $NAMESPACE
 
 # 3. Wait for DynamoDB to fully initialize
-echo -e "${YELLOW}⏱️  Allowing DynamoDB to fully initialize (15 seconds)...${NC}"
-sleep 15
+echo -e "${YELLOW}⏱️  Allowing DynamoDB to fully initialize (20 seconds)...${NC}"
+sleep 20
 echo -e "${GREEN}✅ DynamoDB should be ready for connections${NC}"
 
 # 3. Initialize database
