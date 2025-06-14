@@ -1,4 +1,4 @@
-.PHONY: lint lt e2e e2e-aws install cdk-synth cdk-bootstrap deploy destroy docker-build docker-down docker-setup docker-logs docker-clean table-peek table-peek-aws
+.PHONY: lint lt e2e e2e-aws install cdk-synth cdk-bootstrap deploy destroy docker-build docker-down docker-setup docker-logs docker-clean k8s-setup k8s-down k8s-clean k8s-status table-peek table-peek-aws
 
 lint:
 	pre-commit run --all-files
@@ -86,6 +86,37 @@ docker-clean:
 	# Clean up Docker resources (images, containers, volumes)
 	cd docker && docker compose down -v
 	docker system prune -f
+
+# Kubernetes commands for local development
+k8s-setup:
+	# Complete setup of local Kubernetes environment with kind cluster
+	./scripts/setup-k8s-local.sh
+
+k8s-down:
+	# Remove all Kubernetes resources (keeps cluster running)
+	./scripts/cleanup-k8s-local.sh
+
+k8s-clean:
+	# Destroy the entire kind cluster and all resources
+	./scripts/destroy-k8s-local.sh
+
+k8s-status:
+	# Show status of local Kubernetes deployment
+	@echo "🔍 Kubernetes Cluster Status"
+	@echo ""
+	@if kind get clusters | grep -q "^tiny-url-local$$"; then \
+		echo "✅ Cluster: tiny-url-local (running)"; \
+		kubectl config current-context; \
+		echo ""; \
+		echo "📊 Pods:"; \
+		kubectl get pods -n tiny-url 2>/dev/null || echo "No pods found (namespace might not exist)"; \
+		echo ""; \
+		echo "🌐 Services:"; \
+		kubectl get services -n tiny-url 2>/dev/null || echo "No services found (namespace might not exist)"; \
+	else \
+		echo "❌ Cluster: tiny-url-local (not found)"; \
+		echo "   Run 'make k8s-setup' to create the cluster"; \
+	fi
 
 table-peek:
 	# Peek at DynamoDB table contents (first 3 rows + count)
