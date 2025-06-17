@@ -9,7 +9,6 @@ tiny-url-app-with-cursor/
 ├── cdk/                         # AWS CDK deployment files
 │   ├── lib/
 │   │   ├── __init__.py          # Python package marker
-│   │   ├── README.md            # CDK library documentation
 │   │   └── tiny_url_stack.py    # AWS CDK stack definition
 │   ├── app.py                   # CDK application entry point
 │   ├── cdk.context.json         # CDK context configuration
@@ -26,7 +25,6 @@ tiny-url-app-with-cursor/
 ├── docs/
 │   ├── ARCHITECTURE.md          # System architecture documentation
 │   ├── FEATURES.md              # Features and roadmap documentation
-│   ├── KUBERNETES_LEARNING_PLAN.md  # Kubernetes learning documentation
 │   └── structure.md             # This file - project structure
 ├── scripts/
 │   └── setup-local-dev.sh       # Local development setup script

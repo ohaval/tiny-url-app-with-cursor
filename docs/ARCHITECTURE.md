@@ -1,13 +1,25 @@
 # Architecture
 
-## Tech Stack
+## Tech Stack (CDK)
 - **Backend**: Python 3.11
 - **Infrastructure**: AWS CDK (Infrastructure as Code)
-- **Cloud Provider**: AWS
 - **Database**: DynamoDB
 - **API**: AWS API Gateway + Lambda
 - **Testing**: pytest
-- **CI/CD**: GitHub Actions
+
+## Tech Stack (Docker)
+- **Backend**: Python 3.11
+- **Infrastructure**: Docker Compose
+- **Database**: DynamoDB
+- **API**: Flask + Gunicorn
+- **Testing**: pytest
+
+## Tech Stack (k8s)
+- **Backend**: Python 3.11
+- **Infrastructure**: Kubernetes
+- **Database**: DynamoDB
+- **API**: Flask + Gunicorn
+- **Testing**: pytest
 
 ## Deployment Options
 

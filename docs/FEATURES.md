@@ -10,18 +10,6 @@
    - Fast redirect response ✅
    - Handle invalid/expired URLs ✅
 
-3. Analytics (Planned)
-   - Click tracking
-   - Unique visitors
-   - Geographic distribution
-
-## Future Enhancements
-- Custom domains support
-- API key authentication
-- Rate limiting
-- QR code generation
-- Link preview
-
 ## Feature Implementation Steps
 
 ### Step 1: URL Shortening Endpoint ✅

@@ -6,7 +6,6 @@ A URL shortening service built with Python and AWS CDK, focusing on clean code a
 For detailed information, see:
 - [Architecture & Tech Stack](docs/ARCHITECTURE.md)
 - [Features & Implementation](docs/FEATURES.md)
-- [Kubernetes Learning Plan](docs/KUBERNETES_LEARNING_PLAN.md) - Learn K8s by migrating this app
 
 ## Development Workflow
 1. Local Development
