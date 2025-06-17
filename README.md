@@ -56,7 +56,7 @@ For detailed information, see:
    make e2e-aws    # Deployed AWS (auto-detects)
    ```
 
-5. Deployment
+5. Deployment (AWS CDK)
    ```bash
    # Install AWS CDK CLI (if not already installed)
    npm install -g aws-cdk
