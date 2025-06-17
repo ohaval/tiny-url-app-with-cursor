@@ -23,14 +23,7 @@ After making some changes, always look at the docs around it and see if they nee
 
 ## Feature And Steps Tracking
 
-In features documentation files, or learning-steps always track what we have done and what's not. Using the ✅ emoji is a great way to sign on specific items that were done.
+In features documentation/plan files, any steps file, always track what we have done and what's not. Use the ✅ emoji as it's a great way to sign on specific items that were done.
 
 # Stack
-
 - **Backend**: Python 3.11
-- **Infrastructure**: AWS CDK (Infrastructure as Code)
-- **Cloud Provider**: AWS
-- **Database**: DynamoDB
-- **API**: AWS API Gateway + Lambda
-- **Testing**: pytest
-- **CI/CD**: GitHub Actions
